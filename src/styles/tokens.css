@@ -1,0 +1,227 @@
+/*
+ * FundPath design tokens.
+ * Source: docs/design/handoff/FundPath CRM EN.dc.html (values copied 1:1).
+ * Names use the --fp- prefix so they never collide with Tailwind's own theme variables.
+ * Light theme only.
+ */
+:root {
+  /* ── Background & surfaces ─────────────────────────────── */
+  --fp-bg: #f7f6f3; /* app canvas behind cards */
+  --fp-surface: #ffffff; /* cards, top bar, inputs, buttons */
+  --fp-surface-subtle: #fbfaf8; /* sidebar, table header, search field, textarea */
+  --fp-surface-muted: #f0efeb; /* segmented control track, avatars, progress track */
+  --fp-surface-sunken: #f3f2ee; /* kanban column */
+  --fp-surface-track: #f4f3ef; /* funnel/loss bar track */
+  --fp-surface-skeleton: #efede8; /* loading skeleton blocks */
+  --fp-surface-hover: #faf9f7; /* clickable row hover */
+  --fp-surface-hover-task: #fcfbfa; /* task row hover */
+  --fp-surface-hover-nav: #f0eee9; /* sidebar item hover */
+  --fp-surface-hover-menu: #f4f3ef; /* dropdown item hover */
+  --fp-surface-active-nav: #ecebe6; /* active sidebar item */
+
+  /* ── Borders ───────────────────────────────────────────── */
+  --fp-border: #e8e6e1; /* card, top bar, sidebar edge */
+  --fp-border-strong: #e1dfd9; /* secondary buttons, inputs, selects, menus */
+  --fp-border-hover: #cbc7bf; /* KPI card hover */
+  --fp-border-subtle: #efede9; /* card header divider */
+  --fp-border-row: #f4f2ee; /* table row divider */
+  --fp-border-row-alt: #f2f0ec; /* list row divider (dashboard, table sub-header) */
+  --fp-border-row-faint: #f6f5f2; /* head dashboard table rows */
+  --fp-border-sidebar-footer: #eceae5;
+  --fp-border-timeline: #ebe9e4; /* manual interaction bubble */
+  --fp-border-checkbox: #cfccc4;
+  --fp-border-dashed: #dcd9d2; /* empty kanban column, Won/Lost drop zones */
+  --fp-border-step: #d6d3cc; /* future stepper circle */
+
+  /* ── Text ──────────────────────────────────────────────── */
+  --fp-text: #1d1c1a; /* primary */
+  --fp-text-secondary: #55524c; /* table cells, labels */
+  --fp-text-tertiary: #6f6c67; /* sub-lines, muted numbers */
+  --fp-text-muted: #8a867f; /* captions, column headers, breadcrumbs */
+  --fp-text-faint: #9a968f; /* hints, timestamps, counters */
+  --fp-text-disabled: #b3afa7; /* decorative icons, placeholders */
+  --fp-text-separator: #c9c5bd; /* breadcrumb slash */
+
+  /* ── Accent (single brand color) ───────────────────────── */
+  --fp-accent: #3b54d1; /* primary button, links, focus, active step */
+  --fp-accent-hover: #2a3fa8; /* link hover */
+  --fp-accent-strong: #2f47b0; /* text on accent-soft (chips, avatars, "Next step") */
+  --fp-accent-soft: #eef1fc; /* chips, Next step card, drop target */
+  --fp-accent-softer: #f1f3fd; /* selected row, selected radio, quick-add preview */
+  --fp-accent-ring: #e4e8fa; /* owner avatars, focus ring */
+  --fp-accent-chip-hover: #dde3fa;
+  --fp-accent-border-soft: #d6ddf7; /* Next step card border */
+  --fp-accent-disabled: #c5cdf0; /* disabled primary button (Save note) */
+  --fp-accent-bar-muted: #a9b3e3; /* non-best bank approval bar */
+
+  /* ── Semantic: success ─────────────────────────────────── */
+  --fp-success: #1d7a3e; /* Confirm disbursement, done steps, doc progress */
+  --fp-success-fg: #1c6f39;
+  --fp-success-bg: #e2f3e7;
+  --fp-success-soft: #f3faf5; /* success banner */
+  --fp-success-softer: #f6fbf7; /* best offer card */
+  --fp-success-drop: #e9f6ed; /* Won drop zone hover */
+  --fp-success-border: #cde5d4;
+
+  /* ── Semantic: warning ─────────────────────────────────── */
+  --fp-warning: #8a5a06; /* solid warning button, badge fg */
+  --fp-warning-bg: #fcf1db;
+  --fp-warning-soft: #fdf7ea; /* duplicate banner */
+  --fp-warning-border: #efdcb2;
+  --fp-warning-border-strong: #e6cf9c;
+  --fp-warning-text: #6b4705; /* banner text */
+  --fp-warning-icon: #b07a0c;
+
+  /* ── Semantic: danger ──────────────────────────────────── */
+  --fp-danger: #b3261e; /* overdue, over SLA, Lost, destructive */
+  --fp-danger-bg: #fce8e5;
+  --fp-danger-dot: #c4413a; /* bell counter, high priority, saved-filter dot */
+  --fp-danger-soft: #fdf1ef; /* overdue banner */
+  --fp-danger-softer: #fffbfa; /* stuck kanban card */
+  --fp-danger-row: #fffaf9; /* overloaded manager row */
+  --fp-danger-drop: #fdeeec; /* Lost drop zone hover */
+  --fp-danger-border: #f0c9c3;
+  --fp-danger-border-strong: #eab9b2;
+  --fp-danger-border-stuck: #e8a79f;
+  --fp-danger-border-toggle: #f0c3bd; /* "Over SLA only" active */
+  --fp-danger-text: #8f2019; /* banner text */
+  --fp-danger-disabled: #e6c2bd; /* disabled "Mark as lost" confirm */
+  --fp-danger-bar: #c9857d; /* loss reasons bar */
+
+  /* ── Badge tones (bg / fg pairs) ───────────────────────── */
+  --fp-tone-gray-bg: #f0efeb;
+  --fp-tone-gray-fg: #55524c;
+  --fp-tone-blue-bg: #e8edfc;
+  --fp-tone-blue-fg: #2f47b0;
+  --fp-tone-amber-bg: #fcf1db;
+  --fp-tone-amber-fg: #8a5a06;
+  --fp-tone-green-bg: #e2f3e7;
+  --fp-tone-green-fg: #1c6f39;
+  --fp-tone-red-bg: #fce8e5;
+  --fp-tone-red-fg: #b3261e;
+  --fp-tone-violet-bg: #efe9fb;
+  --fp-tone-violet-fg: #5f3db0;
+  --fp-tone-teal-bg: #dff2f0;
+  --fp-tone-teal-fg: #0f6a64;
+
+  /* ── Deal stage colors (dots, funnel bars) ─────────────── */
+  --fp-stage-new: #8a867f;
+  --fp-stage-qual: #7c5cd6;
+  --fp-stage-docs: #c98a12;
+  --fp-stage-banks: #3b54d1;
+  --fp-stage-submitted: #2d7fc1;
+  --fp-stage-decision: #15857d;
+  --fp-stage-signing: #1d7a3e;
+  --fp-stage-won: #1d7a3e;
+  --fp-stage-lost: #b3261e;
+
+  /* ── Task priority dots ────────────────────────────────── */
+  --fp-priority-high: #c4413a;
+  --fp-priority-med: #d49b2a;
+  --fp-priority-low: #c9c5bd;
+
+  /* ── Toast (dark) ──────────────────────────────────────── */
+  --fp-toast-bg: #1d1c1a;
+  --fp-toast-text: #f4f3ef;
+  --fp-toast-border: #4a4843;
+  --fp-toast-icon-ok: #86dfae;
+  --fp-toast-icon-block: #ff9b8f;
+  --fp-toast-hover: rgba(255, 255, 255, 0.08); /* not in design: hover on toast buttons */
+
+  --fp-overlay: rgba(28, 27, 26, 0.32);
+
+  /* ── Typography ────────────────────────────────────────── */
+  /* --font-plex-* are set by next/font in app/layout.tsx */
+  --fp-font-sans: var(--font-plex-sans), 'IBM Plex Sans', system-ui, sans-serif;
+  --fp-font-mono: var(--font-plex-mono), 'IBM Plex Mono', monospace;
+  --fp-font-icon: 'Material Symbols Outlined';
+
+  --fp-text-avatar-xs: 8.5px; /* initials in 18–20px owner avatars */
+  --fp-text-avatar-sm: 9px; /* initials in 20px table owner avatar */
+  --fp-text-avatar-md: 9.5px; /* bank initials tile (22px) */
+  --fp-text-tiny: 10px; /* 24px avatars, bell counter */
+  --fp-text-micro: 10.5px; /* kbd hints, "auto" tag, Duplicate badge */
+  --fp-text-caption: 11px; /* column labels in cards, small badges, sidebar counters */
+  --fp-text-meta: 11.5px; /* table headers, badges, card captions, sub-lines */
+  --fp-text-sm: 12px; /* secondary text, small buttons */
+  --fp-text-control: 12.5px; /* buttons, inputs, selects */
+  --fp-text-base: 13px; /* body */
+  --fp-text-logo: 14px; /* "FundPath" wordmark */
+  --fp-text-heading: 15px; /* modal title, empty/error title */
+  --fp-text-stat: 16px; /* LTV, team card numbers */
+  --fp-text-amount: 18px; /* commission total */
+  --fp-text-title: 19px; /* page / entity title */
+  --fp-text-kpi: 23px; /* dashboard KPI value */
+  --fp-text-display: 24px; /* offer rate */
+
+  --fp-leading: 1.4;
+  --fp-tracking-title: -0.015em;
+  --fp-tracking-kpi: -0.02em;
+  --fp-tracking-overline: 0.04em; /* uppercase section labels */
+
+  --fp-weight-regular: 400;
+  --fp-weight-medium: 500;
+  --fp-weight-semibold: 600;
+
+  /* ── Radii ─────────────────────────────────────────────── */
+  --fp-radius-bar: 2px; /* legend dots, thin bars */
+  --fp-radius-track: 3px; /* progress tracks, "auto" tag */
+  --fp-radius-badge: 4px; /* status badges, kbd, checkbox */
+  --fp-radius-control-sm: 5px; /* xs buttons, segmented items, bank/client initials */
+  --fp-radius-control: 6px; /* buttons, nav items, selects */
+  --fp-radius-input: 7px; /* search inputs, segmented track, kanban card */
+  --fp-radius-card: 8px; /* cards, banners, menus */
+  --fp-radius-toast: 9px;
+  --fp-radius-modal: 10px; /* modal, empty-state icon tile, lock card */
+  --fp-radius-pill: 13px; /* filter chips (26px tall) */
+  --fp-radius-full: 50%;
+
+  /* ── Spacing (px scale used by the design) ─────────────── */
+  --fp-space-1: 2px;
+  --fp-space-2: 4px;
+  --fp-space-3: 6px;
+  --fp-space-4: 8px;
+  --fp-space-5: 10px;
+  --fp-space-6: 12px;
+  --fp-space-7: 14px; /* card padding, card header x-padding */
+  --fp-space-8: 16px;
+  --fp-space-9: 20px; /* page top padding, top bar x-padding */
+  --fp-space-10: 24px; /* page x-padding */
+  --fp-space-11: 32px; /* page bottom padding */
+
+  /* ── Control heights ───────────────────────────────────── */
+  --fp-control-xs: 24px; /* inline row actions (Request, Tomorrow) */
+  --fp-control-sm: 26px; /* banner buttons, chips, segmented items */
+  --fp-control-md: 28px; /* toolbar buttons, sort select */
+  --fp-control: 30px; /* default button, search input */
+  --fp-control-lg: 34px; /* tabs, lost-reason radio rows */
+
+  /* ── Tables & lists ────────────────────────────────────── */
+  --fp-row-height: 44px; /* clients table */
+  --fp-row-height-compact: 40px; /* pipeline table */
+  --fp-row-height-task: 42px; /* tasks list (min-height) */
+  --fp-row-height-doc: 38px; /* document checklist (min-height) */
+  --fp-table-header-height: 34px;
+  --fp-group-header-height: 36px; /* task group header */
+
+  /* ── Layout ────────────────────────────────────────────── */
+  --fp-sidebar-width: 228px;
+  --fp-topbar-height: 52px;
+  --fp-app-min-width: 1280px;
+  --fp-content-max: 1640px;
+  --fp-aside-width: 340px; /* right column on client / deal cards */
+  --fp-kanban-col-min: 212px;
+  --fp-modal-width: 440px;
+  --fp-modal-width-lg: 560px; /* not in design: forms (New client) */
+
+  /* ── Elevation ─────────────────────────────────────────── */
+  --fp-shadow-card: 0 1px 1px rgba(28, 27, 26, 0.03); /* kanban card */
+  --fp-shadow-card-hover: 0 2px 8px rgba(28, 27, 26, 0.08);
+  --fp-shadow-segment: 0 1px 2px rgba(28, 27, 26, 0.1); /* active segmented item */
+  --fp-shadow-menu: 0 8px 24px rgba(28, 27, 26, 0.1);
+  --fp-shadow-toast: 0 10px 30px rgba(28, 27, 26, 0.25);
+  --fp-shadow-modal: 0 20px 50px rgba(28, 27, 26, 0.25);
+  --fp-shadow-focus: 0 0 0 3px #e4e8fa;
+  --fp-shadow-focus-inset: inset 0 0 0 2px var(--fp-accent-ring); /* not in design: focused table row */
+  --fp-shadow-focus-danger: 0 0 0 3px var(--fp-danger-bg); /* not in design: invalid input focus */
+}

@@ -1,0 +1,11 @@
+.next/
+out/
+build/
+node_modules/
+package-lock.json
+next-env.d.ts
+docs/design/handoff/
+docs/design/screens/
+docs/design/_actual/
+# Prose docs are hand-written; Prettier only formats code.
+*.md

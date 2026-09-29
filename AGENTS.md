@@ -16,9 +16,12 @@ Revenue = 1-3% commission on the amount the bank actually PAID OUT.
 - No backend. In-memory state persisted to localStorage. "Reset demo data" lives in the profile menu.
 
 ## Language and formats
-- UI language: Ukrainian. Code, comments, commit messages: English.
-- Currency: `1 250 000 ₴`. Dates: `12 вер`, `сьогодні`, `3 дні тому`.
-- All UI strings live in one place (`src/lib/i18n.ts` or similar). No hardcoded strings in components.
+- UI language: English. Code, comments, commit messages: English.
+- Company and people names in seed data stay Ukrainian.
+- Currency: `1 250 000 ₴`. Dates as in the design: `Sep 18`, `today`, `3 days ago`.
+  Use the formatters in `src/lib/format.ts`.
+- No translation layer: UI strings live directly in components. Stage and status labels
+  come from `src/lib/constants.ts`.
 
 ## Domain model
 - **User**: name, role (`manager` | `head`), monthly target
@@ -130,3 +133,10 @@ Required "story" records:
   and any side effects.
 - Do not add libraries beyond the stack above without asking.
 - Run `npm run lint` and `npm run build` before declaring a step done.
+
+## Code quality
+- No comments in code. Names, types and small functions must make the code self-explanatory.
+  Do not write JSDoc, section dividers, or explanatory comments.
+- Exceptions: directives that tools require (`eslint-disable-next-line` with a reason,
+  `@ts-expect-error` with a reason). Nothing else.
+- If something is truly non-obvious, put the explanation in docs/, not in the code.

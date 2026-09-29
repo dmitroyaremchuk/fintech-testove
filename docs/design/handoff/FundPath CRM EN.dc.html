@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300..500,0..1,0&amp;display=block" rel="stylesheet">
+<style>
+html,body{margin:0;background:#f7f6f3;color:#1d1c1a;font-family:'IBM Plex Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#3b54d1;text-decoration:none}
+a:hover{color:#2a3fa8;text-decoration:underline}
+input[type=range]{accent-color:#3b54d1}
+</style>
+</helmet>
+<div style="display:grid;grid-template-columns:228px minmax(0,1fr);height:100vh;min-width:1280px;font-size:13px;line-height:1.4;color:#1d1c1a;font-family:'IBM Plex Sans',system-ui,sans-serif">
+<aside style="display:flex;flex-direction:column;background:#fbfaf8;border-right:1px solid #e8e6e1;min-height:0;position:relative">
+  <div style="display:flex;align-items:center;gap:9px;padding:14px 16px 10px">
+    <div style="width:24px;height:24px;border-radius:6px;background:#1d1c1a;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px">F</div>
+    <div style="font-weight:600;font-size:14px;letter-spacing:-0.01em">FundPath</div>
+    <div style="margin-left:auto;font-size:11px;color:#9a968f;font-family:'IBM Plex Mono',monospace">CRM</div>
+  </div>
+  <nav style="display:flex;flex-direction:column;gap:1px;padding:6px 8px">
+    <sc-for list="{{ nav }}" as="n" hint-placeholder-count="4">
+      <button onClick="{{ n.onClick }}" style="display:flex;align-items:center;gap:10px;height:32px;padding:0 10px;border:0;border-radius:6px;background:{{ n.bg }};color:{{ n.fg }};font:inherit;font-size:13px;font-weight:{{ n.weight }};cursor:pointer;text-align:left">
+        <span style="font-family:'Material Symbols Outlined';font-size:18px;line-height:1;font-variation-settings:'wght' 350">{{ n.icon }}</span>
+        <span style="flex:1">{{ n.label }}</span>
+        <sc-if value="{{ n.hasCount }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;min-width:20px;height:18px;padding:0 6px;border-radius:9px;background:{{ n.countBg }};color:{{ n.countFg }};display:inline-flex;align-items:center;justify-content:center;font-weight:500;font-variant-numeric:tabular-nums">{{ n.count }}</span></sc-if>
+      </button>
+    </sc-for>
+  </nav>
+  <div style="padding:14px 18px 6px;font-size:11px;color:#9a968f;font-weight:500;letter-spacing:0.04em;text-transform:uppercase">Saved filters</div>
+  <div style="display:flex;flex-direction:column;gap:1px;padding:0 8px">
+    <sc-for list="{{ sideSaved }}" as="s" hint-placeholder-count="3">
+      <button onClick="{{ s.onClick }}" style="display:flex;align-items:center;gap:10px;height:28px;padding:0 10px;border:0;border-radius:6px;background:transparent;color:#55524c;font:inherit;font-size:12.5px;cursor:pointer;text-align:left" style-hover="background:#f0eee9">
+        <span style="width:7px;height:7px;border-radius:2px;background:{{ s.c }}"></span><span style="flex:1">{{ s.label }}</span><span style="font-size:11px;color:#9a968f">{{ s.n }}</span>
+      </button>
+    </sc-for>
+  </div>
+  <div style="margin-top:auto;padding:10px;border-top:1px solid #eceae5;position:relative">
+    <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;left:10px;right:10px;bottom:58px;background:#fff;border:1px solid #e1dfd9;border-radius:8px;box-shadow:0 8px 24px rgba(28,27,26,.1);padding:4px;z-index:20">
+        <div style="padding:8px 10px 6px;font-size:11.5px;color:#8a867f">{{ meName }} · {{ meRoleLabel }}</div>
+        <button onClick="{{ onReset }}" style="display:flex;align-items:center;gap:8px;width:100%;height:30px;padding:0 10px;border:0;border-radius:5px;background:transparent;font:inherit;font-size:12.5px;color:#1d1c1a;cursor:pointer;text-align:left" style-hover="background:#f4f3ef"><span style="font-family:'Material Symbols Outlined';font-size:16px;line-height:1">restart_alt</span>Reset demo data</button>
+        <button onClick="{{ toggleMenu }}" style="display:flex;align-items:center;gap:8px;width:100%;height:30px;padding:0 10px;border:0;border-radius:5px;background:transparent;font:inherit;font-size:12.5px;color:#1d1c1a;cursor:pointer;text-align:left" style-hover="background:#f4f3ef"><span style="font-family:'Material Symbols Outlined';font-size:16px;line-height:1">logout</span>Log out</button>
+      </div>
+    </sc-if>
+    <button onClick="{{ toggleMenu }}" style="display:flex;align-items:center;gap:9px;width:100%;padding:6px;border:0;border-radius:6px;background:transparent;font:inherit;cursor:pointer;text-align:left" style-hover="background:#f0eee9">
+      <span style="width:28px;height:28px;border-radius:50%;background:#e4e8fa;color:#2f47b0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600">{{ meIni }}</span>
+      <span style="display:flex;flex-direction:column;min-width:0;flex:1"><span style="font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ meName }}</span><span style="font-size:11px;color:#8a867f">{{ meRoleLabel }}</span></span>
+      <span style="font-family:'Material Symbols Outlined';font-size:16px;line-height:1;color:#9a968f">unfold_more</span>
+    </button>
+  </div>
+</aside>
+<div style="display:grid;grid-template-rows:52px minmax(0,1fr);min-width:0;min-height:0">
+  <header style="display:flex;align-items:center;gap:12px;padding:0 20px;background:#fff;border-bottom:1px solid #e8e6e1;min-width:0">
+    <div style="display:flex;align-items:center;gap:6px;font-size:13px;min-width:0;flex:1">
+      <button onClick="{{ onCrumbA }}" style="border:0;background:none;padding:0;font:inherit;color:#8a867f;cursor:pointer;white-space:nowrap" style-hover="color:#1d1c1a">{{ crumbA }}</button>
+      <span style="color:#c9c5bd">/</span>
+      <span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="{{ crumbB }}">{{ crumbB }}</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;width:260px;height:30px;padding:0 10px;border:1px solid #e8e6e1;border-radius:7px;background:#fbfaf8;color:#9a968f;font-size:12.5px">
+      <span style="font-family:'Material Symbols Outlined';font-size:16px;line-height:1">search</span><span style="flex:1;white-space:nowrap;overflow:hidden">Client, EDRPOU, phone…</span><span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;border:1px solid #e1dfd9;border-radius:4px;padding:1px 5px;background:#fff">⌘K</span>
+    </div>
+    <div style="display:flex;padding:2px;background:#f0efeb;border-radius:7px;gap:2px">
+      <sc-for list="{{ roleOpts }}" as="o" hint-placeholder-count="2">
+        <button onClick="{{ o.onClick }}" style="height:26px;padding:0 10px;border:0;border-radius:5px;background:{{ o.bg }};color:{{ o.fg }};box-shadow:{{ o.shadow }};font:inherit;font-size:12.5px;font-weight:500;cursor:pointer">{{ o.label }}</button>
+      </sc-for>
+    </div>
+    <sc-if value="{{ isManager }}" hint-placeholder-val="{{ true }}">
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#8a867f">Log in as
+        <select value="{{ me }}" onChange="{{ onMe }}" style="height:30px;border:1px solid #e1dfd9;border-radius:6px;background:#fff;font:inherit;font-size:12.5px;color:#1d1c1a;padding:0 6px">
+          <sc-for list="{{ managers }}" as="m" hint-placeholder-count="5"><option value="{{ m.id }}">{{ m.name }}</option></sc-for>
+        </select>
+      </label>
+    </sc-if>
+    <button onClick="{{ onBell }}" title="Reminders" style="position:relative;width:32px;height:32px;border:1px solid #e8e6e1;border-radius:7px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#55524c" style-hover="background:#f7f6f3">
+      <span style="font-family:'Material Symbols Outlined';font-size:18px;line-height:1;font-variation-settings:'wght' 350">notifications</span>
+      <sc-if value="{{ hasBell }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-5px;right:-5px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:#c4413a;color:#fff;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;border:2px solid #fff">{{ bellCount }}</span></sc-if>
+    </button>
+  </header>
+  <main ref="{{ mainRef }}" style="overflow:auto;min-height:0;min-width:0;position:relative">
+<sc-if value="{{ notReady }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="State" style="padding:24px">
+    <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px">
+          <sc-for list="{{ skel }}" as="k" hint-placeholder-count="4"><div style="height:96px;border-radius:8px;background:#efede8"></div></sc-for>
+        </div>
+        <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:14px">
+          <sc-for list="{{ skel }}" as="k" hint-placeholder-count="6"><div style="display:flex;gap:12px;align-items:center"><div style="width:22px;height:22px;border-radius:5px;background:#efede8"></div><div style="height:10px;border-radius:4px;background:#efede8;width:{{ k.w }}"></div></div></sc-for>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:420px;margin:72px auto;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px">
+        <div style="width:44px;height:44px;border-radius:10px;background:#f0efeb;display:flex;align-items:center;justify-content:center;color:#8a867f"><span style="font-family:'Material Symbols Outlined';font-size:22px;line-height:1">inbox</span></div>
+        <div style="font-size:15px;font-weight:600">{{ emptyTitle }}</div>
+        <div style="color:#6f6c67;text-wrap:pretty">{{ emptyText }}</div>
+        <button style="margin-top:6px;height:30px;padding:0 12px;border:1px solid #3b54d1;border-radius:6px;background:#3b54d1;color:#fff;font:inherit;font-size:12.5px;font-weight:500;cursor:pointer">{{ emptyCta }}</button>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isError }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:440px;margin:72px auto;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px">
+        <div style="width:44px;height:44px;border-radius:10px;background:#fce8e5;display:flex;align-items:center;justify-content:center;color:#b3261e"><span style="font-family:'Material Symbols Outlined';font-size:22px;line-height:1">cloud_off</span></div>
+        <div style="font-size:15px;font-weight:600">Couldn’t load data</div>
+        <div style="color:#6f6c67;text-wrap:pretty">Check your connection. Changes made before the failure are saved locally and will sync automatically.</div>
+        <div style="display:flex;gap:8px;margin-top:6px"><button onClick="{{ onRetry }}" style="height:30px;padding:0 12px;border:1px solid #3b54d1;border-radius:6px;background:#3b54d1;color:#fff;font:inherit;font-size:12.5px;font-weight:500;cursor:pointer">Try again</button><button style="height:30px;padding:0 12px;border:1px solid #e1dfd9;border-radius:6px;background:#fff;font:inherit;font-size:12.5px;cursor:pointer">Report a problem</button></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#9a968f">code: NET_TIMEOUT · 29.09 10:14</div>
+      </div>
+    </sc-if>
+  </div>
+</sc-if>
+<sc-if value="{{ show.dashM }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Manager dashboard" style="padding:20px 24px 32px;display:flex;flex-direction:column;gap:14px;max-width:1640px">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px">
+    <div><div style="font-size:19px;font-weight:600;letter-spacing:-0.015em">{{ dm.greeting }}</div><div style="color:#8a867f;margin-top:3px">Tuesday, September 29 · {{ dm.summary }}</div></div>
+    <div style="display:flex;gap:8px">
+      <button onClick="{{ dm.onNewTask }}" style="height:30px;padding:0 12px;border:1px solid #e1dfd9;border-radius:6px;background:#fff;font:inherit;font-size:12.5px;cursor:pointer;display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Outlined';font-size:16px;line-height:1">add_task</span>Task</button>
+      <button onClick="{{ dm.onNewLead }}" style="height:30px;padding:0 12px;border:1px solid #3b54d1;border-radius:6px;background:#3b54d1;color:#fff;font:inherit;font-size:12.5px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Outlined';font-size:16px;line-height:1">add</span>New lead</button>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px">
+    <sc-for list="{{ dm.kpis }}" as="k" hint-placeholder-count="4">
+      <button onClick="{{ k.onClick }}" style="text-align:left;font:inherit;color:inherit;background:#fff;border:1px solid #e8e6e1;border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:7px;cursor:pointer;min-width:0" style-hover="border-color:#cbc7bf">
+        <div style="display:flex;justify-content:space-between;align-items:center;color:#6f6c67;font-size:12px">{{ k.label }}<span style="font-family:'Material Symbols Outlined';font-size:15px;line-height:1;color:#b3afa7">arrow_outward</span></div>
+        <div style="font-size:23px;font-weight:600;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;color:{{ k.color }};white-space:nowrap">{{ k.value }}</div>
+        <sc-if value="{{ k.hasBar }}" hint-placeholder-val="{{ false }}"><div style="height:4px;background:#f0efeb;border-radius:2px;overflow:hidden"><div style="height:100%;width:{{ k.bar }};background:#3b54d1;border-radius:2px"></div></div></sc-if>
+        <div style="font-size:12px;color:#6f6c67;font-variant-numeric:tabular-nums">{{ k.sub }}</div>
+        <div style="display:flex;gap:6px;font-size:11.5px;color:#8a867f;border-top:1px dashed #e8e6e1;padding-top:8px;margin-top:auto"><span style="font-family:'Material Symbols Outlined';font-size:14px;line-height:1.1;color:#b3afa7">help</span><span style="text-wrap:pretty">{{ k.decision }}</span></div>
+      </button>
+    </sc-for>
+  </div>
+  <div style="display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:12px;align-items:start">
+    <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px;overflow:hidden">
+      <div style="padding:12px 14px;border-bottom:1px solid #efede9;display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+        <div><div style="font-weight:600;display:flex;gap:8px;align-items:center">Deals at risk <span style="font-size:11px;font-weight:500;color:#b3261e;background:#fce8e5;border-radius:9px;padding:1px 7px">{{ dm.riskCount }}</span></div><div style="font-size:11.5px;color:#8a867f;margin-top:2px">Helps decide: which deals to step into today before they breach SLA</div></div>
+        <button onClick="{{ dm.goPipeline }}" style="border:0;background:none;font:inherit;font-size:12px;color:#3b54d1;cursor:pointer;white-space:nowrap">Full pipeline →</button>
+      </div>
+      <sc-for list="{{ dm.risks }}" as="r" hint-placeholder-count="3">
+        <button onClick="{{ r.onClick }}" style="display:grid;grid-template-columns:minmax(0,1fr) 150px 120px 16px;gap:12px;align-items:center;width:100%;padding:10px 14px;border:0;border-bottom:1px solid #f2f0ec;background:#fff;font:inherit;color:inherit;text-align:left;cursor:pointer" style-hover="background:#faf9f7">
+          <div style="min-width:0"><div style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="{{ r.name }}">{{ r.name }}</div><div style="display:flex;align-items:center;gap:5px;font-size:12px;color:{{ r.rc }};margin-top:2px"><span style="font-family:'Material Symbols Outlined';font-size:14px;line-height:1">{{ r.icon }}</span>{{ r.reason }}</div></div>
+          <span style="justify-self:start;font-size:11.5px;font-weight:500;padding:2px 7px;border-radius:4px;background:{{ r.sbg }};color:{{ r.sfg }};white-space:nowrap">{{ r.stage }}</span>
+          <span style="text-align:right;font-variant-numeric:tabular-nums;font-weight:500;white-space:nowrap">{{ r.amount }}</span>
+          <span style="font-family:'Material Symbols Outlined';font-size:16px;line-height:1;color:#b3afa7">chevron_right</span>
+        </button>
+      </sc-for>
+      <sc-if value="{{ dm.noRisks }}" hint-placeholder-val="{{ false }}"><div style="padding:28px;text-align:center;color:#8a867f">All deals within SLA. Documents are up to date.</div></sc-if>
+    </div>
+    <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px;overflow:hidden">
+      <div style="padding:12px 14px;border-bottom:1px solid #efede9;display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+        <div><div style="font-weight:600">Today’s tasks</div><div style="font-size:11.5px;color:#8a867f;margin-top:2px">Helps decide: where to start the day</div></div>
+        <button onClick="{{ dm.goTasks }}" style="border:0;background:none;font:inherit;font-size:12px;color:#3b54d1;cursor:pointer;white-space:nowrap">All tasks →</button>
+      </div>
+      <sc-for list="{{ dm.today }}" as="t" hint-placeholder-count="5">
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid #f2f0ec">
+          <button onClick="{{ t.onToggle }}" title="Mark as done" style="width:16px;height:16px;flex:none;border:1.5px solid #cfccc4;border-radius:4px;background:#fff;cursor:pointer;padding:0"></button>
+          <div style="min-width:0;flex:1"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="{{ t.title }}">{{ t.title }}</div><button onClick="{{ t.onClient }}" style="border:0;background:none;padding:0;font:inherit;font-size:11.5px;color:#8a867f;cursor:pointer" style-hover="color:#3b54d1">{{ t.client }}</button></div>
+          <sc-if value="{{ t.isAuto }}" hint-placeholder-val="{{ false }}"><span title="Created automatically" style="font-family:'Material Symbols Outlined';font-size:14px;line-height:1;color:#9a968f">bolt</span></sc-if>
+          <span style="font-size:12px;color:{{ t.dueColor }};white-space:nowrap;font-variant-numeric:tabular-nums">{{ t.due }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px">
+    <div style="padding:12px 14px;border-bottom:1px solid #efede9"><div style="font-weight:600">My pipeline</div><div style="font-size:11.5px;color:#8a867f;margin-top:2px">Helps decide: where deals are piling up and what to push this week</div></div>
+    <div style="padding:10px 14px 14px;display:flex;flex-direction:column;gap:6px">
+      <sc-for list="{{ dm.funnel }}" as="f" hint-placeholder-count="7">
+        <div style="display:grid;grid-template-columns:160px minmax(0,1fr) 36px 110px 110px;gap:12px;align-items:center;height:24px">
+          <span style="display:flex;align-items:center;gap:7px;color:#55524c"><span style="width:7px;height:7px;border-radius:2px;background:{{ f.c }}"></span>{{ f.label }}</span>
+          <div style="height:10px;background:#f4f3ef;border-radius:3px;overflow:hidden"><div style="height:100%;width:{{ f.w }};background:{{ f.c }};opacity:.85;border-radius:3px"></div></div>
+          <span style="text-align:right;font-variant-numeric:tabular-nums;font-weight:500">{{ f.n }}</span>
+          <span style="text-align:right;font-variant-numeric:tabular-nums;color:#6f6c67">{{ f.sum }}</span>
+          <span style="font-size:11.5px;color:#b3261e">
+            <sc-if value="{{ f.hasStuck }}" hint-placeholder-val="{{ false }}">⏱ {{ f.stuck }}</sc-if>
+          </span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</div>
+</sc-if>
+<sc-if value="{{ show.dashH }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Head dashboard" style="padding:20px 24px 32px;display:flex;flex-direction:column;gap:14px;max-width:1640px">
+  <div><div style="font-size:19px;font-weight:600;letter-spacing:-0.015em">Team · September 2026</div><div style="color:#8a867f;margin-top:3px">5 managers · {{ dh.pipeTotal }}</div></div>
+  <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px">
+    <sc-for list="{{ dh.kpis }}" as="k" hint-placeholder-count="4">
+      <button onClick="{{ k.onClick }}" style="text-align:left;font:inherit;color:inherit;background:#fff;border:1px solid #e8e6e1;border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:7px;cursor:pointer;min-width:0" style-hover="border-color:#cbc7bf">
+        <div style="display:flex;justify-content:space-between;align-items:center;color:#6f6c67;font-size:12px">{{ k.label }}<span style="font-family:'Material Symbols Outlined';font-size:15px;line-height:1;color:#b3afa7">arrow_outward</span></div>
+        <div style="font-size:23px;font-weight:600;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;color:{{ k.color }};white-space:nowrap">{{ k.value }}</div>
+        <sc-if value="{{ k.hasBar }}" hint-placeholder-val="{{ false }}"><div style="height:4px;background:#f0efeb;border-radius:2px;overflow:hidden"><div style="height:100%;width:{{ k.bar }};background:#3b54d1;border-radius:2px"></div></div></sc-if>
+        <div style="font-size:12px;color:#6f6c67">{{ k.sub }}</div>
+        <div style="display:flex;gap:6px;font-size:11.5px;color:#8a867f;border-top:1px dashed #e8e6e1;padding-top:8px;margin-top:auto"><span style="font-family:'Material Symbols Outlined';font-size:14px;line-height:1.1;color:#b3afa7">help</span><span style="text-wrap:pretty">{{ k.decision }}</span></div>
+      </button>
+    </sc-for>
+  </div>
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:start">
+    <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px">
+      <div style="padding:12px 14px;border-bottom:1px solid #efede9"><div style="font-weight:600">Team pipeline</div><div style="font-size:11.5px;color:#8a867f;margin-top:2px">Helps decide: where the process slows down — red stages exceed SLA on average</div></div>
+      <div style="padding:10px 14px 14px;display:flex;flex-direction:column;gap:6px">
+        <sc-for list="{{ dh.funnel }}" as="f" hint-placeholder-count="7">
+          <div style="display:grid;grid-template-columns:140px minmax(0,1fr) 28px 84px 92px;gap:10px;align-items:center;height:24px">
+            <span style="display:flex;align-items:center;gap:7px;color:#55524c;white-space:nowrap"><span style="width:7px;height:7px;border-radius:2px;background:{{ f.c }}"></span>{{ f.label }}</span>
+            <div style="height:10px;background:#f4f3ef;border-radius:3px;overflow:hidden"><div style="height:100%;width:{{ f.w }};background:{{ f.c }};opacity:.85;border-radius:3px"></div></div>
+            <span style="text-align:right;font-variant-numeric:tabular-nums;font-weight:500">{{ f.n }}</span>
+            <span style="text-align:right;font-variant-numeric:tabular-nums;color:#6f6c67;font-size:12px">{{ f.sum }}</span>
+            <span style="text-align:right;font-size:11.5px;color:{{ f.avgColor }};font-weight:{{ f.avgWeight }};white-space:nowrap">{{ f.avg }} · {{ f.sla }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px">
+      <div style="padding:12px 14px;border-bottom:1px solid #efede9"><div style="font-weight:600">Partner banks · 90 applications</div><div style="font-size:11.5px;color:#8a867f;margin-top:2px">Helps decide: where to submit next and whose terms to renegotiate</div></div>
+      <div style="display:grid;grid-template-columns:minmax(0,1.2fr) 56px minmax(0,1.3fr) 64px 56px 52px;gap:10px;padding:8px 14px;font-size:11px;color:#8a867f;border-bottom:1px solid #f2f0ec"><span>Bank</span><span style="text-align:right">Applications</span><span>Approval</span><span style="text-align:right">Decision</span><span style="text-align:right">Rate</span><span style="text-align:right">Disbursed</span></div>
+      <sc-for list="{{ dh.banks }}" as="b" hint-placeholder-count="5">
+        <div style="display:grid;grid-template-columns:minmax(0,1.2fr) 56px minmax(0,1.3fr) 64px 56px 52px;gap:10px;padding:9px 14px;align-items:center;border-bottom:1px solid #f6f5f2;font-variant-numeric:tabular-nums">
+          <span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ b.bank }}</span>
+          <span style="text-align:right;color:#6f6c67">{{ b.apps }}</span>
+          <span style="display:flex;align-items:center;gap:8px"><span style="flex:1;height:6px;background:#f0efeb;border-radius:3px;overflow:hidden"><span style="display:block;height:100%;width:{{ b.w }};background:{{ b.barC }}"></span></span><span style="width:32px;text-align:right">{{ b.appr }}</span></span>
+          <span style="text-align:right;color:#6f6c67">{{ b.days }}</span>
+          <span style="text-align:right">{{ b.rate }}</span>
+          <span style="text-align:right;color:#6f6c67">{{ b.paid }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:12px;align-items:start">
+    <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px;overflow:hidden">
+      <div style="padding:12px 14px;border-bottom:1px solid #efede9"><div style="font-weight:600">Manager workload</div><div style="font-size:11.5px;color:#8a867f;margin-top:2px">Helps decide: who to reassign deals to. Click — manager’s pipeline</div></div>
+      <div style="display:grid;grid-template-columns:minmax(0,1.4fr) 70px 90px 100px minmax(0,1fr);gap:10px;padding:8px 14px;font-size:11px;color:#8a867f;border-bottom:1px solid #f2f0ec"><span>Manager</span><span style="text-align:right">Deals</span><span style="text-align:right">Overdue tasks</span><span style="text-align:right">Pipeline</span><span>Target</span></div>
+      <sc-for list="{{ dh.team }}" as="m" hint-placeholder-count="5">
+        <button onClick="{{ m.onClick }}" style="display:grid;grid-template-columns:minmax(0,1.4fr) 70px 90px 100px minmax(0,1fr);gap:10px;padding:9px 14px;align-items:center;width:100%;border:0;border-bottom:1px solid #f6f5f2;background:{{ m.rowBg }};font:inherit;color:inherit;text-align:left;cursor:pointer;font-variant-numeric:tabular-nums" style-hover="background:#faf9f7">
+          <span style="display:flex;align-items:center;gap:8px;min-width:0"><span style="width:24px;height:24px;flex:none;border-radius:50%;background:#f0efeb;color:#55524c;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600">{{ m.ini }}</span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500">{{ m.name }}</span><sc-if value="{{ m.over }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:500;padding:1px 6px;border-radius:4px;background:#fce8e5;color:#b3261e;white-space:nowrap">Overloaded</span></sc-if></span>
+          <span style="text-align:right;color:{{ m.openColor }};font-weight:500">{{ m.open }}</span>
+          <span style="text-align:right;color:{{ m.overdueColor }};font-weight:500">{{ m.overdue }}</span>
+          <span style="text-align:right;color:#6f6c67">{{ m.pipe }}</span>
+          <span style="display:flex;align-items:center;gap:8px"><span style="flex:1;height:6px;background:#f0efeb;border-radius:3px;overflow:hidden"><span style="display:block;height:100%;width:{{ m.planW }};background:#3b54d1"></span></span><span style="width:34px;text-align:right;font-size:12px">{{ m.plan }}</span></span>
+        </button>
+      </sc-for>
+    </div>
+    <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px">
+      <div style="padding:12px 14px;border-bottom:1px solid #efede9"><div style="font-weight:600">Loss reasons</div><div style="font-size:11.5px;color:#8a867f;margin-top:2px">Helps decide: what to change in qualification and document collection · {{ dh.lossTotal }}</div></div>
+      <div style="padding:10px 14px 14px;display:flex;flex-direction:column;gap:8px">
+        <sc-for list="{{ dh.loss }}" as="l" hint-placeholder-count="6">
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;justify-content:space-between;font-size:12.5px"><span>{{ l.label }}</span><span style="color:#6f6c67;font-variant-numeric:tabular-nums">{{ l.v }} · {{ l.pct }}</span></div>
+            <div style="height:6px;background:#f4f3ef;border-radius:3px;overflow:hidden"><div style="height:100%;width:{{ l.w }};background:#c9857d;border-radius:3px"></div></div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</div>
+</sc-if>
+<sc-if value="{{ show.team }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Team" style="padding:20px 24px 32px;display:flex;flex-direction:column;gap:14px;max-width:1200px">
+  <div><div style="font-size:19px;font-weight:600;letter-spacing:-0.015em">Team</div><div style="color:#8a867f;margin-top:3px">Workload and target progress · September</div></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px">
+    <sc-for list="{{ dh.team }}" as="m" hint-placeholder-count="5">
+      <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="width:32px;height:32px;border-radius:50%;background:#f0efeb;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600">{{ m.ini }}</span><div style="flex:1;min-width:0"><div style="font-weight:600">{{ m.name }}</div><div style="font-size:11.5px;color:#8a867f">Credit manager</div></div><sc-if value="{{ m.over }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:500;padding:2px 7px;border-radius:4px;background:#fce8e5;color:#b3261e">Overloaded</span></sc-if></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-variant-numeric:tabular-nums">
+          <div><div style="font-size:11px;color:#8a867f">Deals</div><div style="font-size:16px;font-weight:600;color:{{ m.openColor }}">{{ m.open }}</div></div>
+          <div><div style="font-size:11px;color:#8a867f">Overdue</div><div style="font-size:16px;font-weight:600;color:{{ m.overdueColor }}">{{ m.overdue }}</div></div>
+          <div><div style="font-size:11px;color:#8a867f">Target</div><div style="font-size:16px;font-weight:600">{{ m.plan }}</div></div>
+        </div>
+        <div style="height:5px;background:#f0efeb;border-radius:3px;overflow:hidden"><div style="height:100%;width:{{ m.planW }};background:#3b54d1"></div></div>
+        <div style="display:flex;gap:8px"><button onClick="{{ m.onClick }}" style="flex:1;height:28px;border:1px solid #e1dfd9;border-radius:6px;background:#fff;font:inherit;font-size:12px;cursor:pointer">Pipeline</button><sc-if value="{{ m.over }}" hint-placeholder-val="{{ false }}"><button onClick="{{ m.onRebalance }}" style="flex:1;height:28px;border:1px solid #3b54d1;border-radius:6px;background:#3b54d1;color:#fff;font:inherit;font-size:12px;cursor:pointer">Reassign</button></sc-if></div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+<sc-if value="{{ show.clients }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Clients" style="padding:20px 24px 32px;display:flex;flex-direction:column;gap:12px">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+    <div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:19px;font-weight:600;letter-spacing:-0.015em">Clients</span><span style="color:#8a867f;font-variant-numeric:tabular-nums">{{ cl.count }} of {{ cl.total }}</span></div>
+    <div style="display:flex;gap:8px">
+      <button style="height:30px;padding:0 12px;border:1px solid #e1dfd9;border-radius:6px;background:#fff;font:inherit;font-size:12.5px;cursor:pointer;display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Outlined';font-size:16px;line-height:1">upload</span>Import</button>
+      <button onClick="{{ cl.onNew }}" style="height:30px;padding:0 12px;border:1px solid #3b54d1;border-radius:6px;background:#3b54d1;color:#fff;font:inherit;font-size:12.5px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Outlined';font-size:16px;line-height:1">add</span>New client</button>
+    </div>
+  </div>
+  <sc-if value="{{ cl.hasDup }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid #efdcb2;background:#fdf7ea;border-radius:8px;color:#6b4705">
+      <span style="font-family:'Material Symbols Outlined';font-size:18px;line-height:1;color:#b07a0c">content_copy</span>
+      <span style="flex:1;text-wrap:pretty">{{ cl.dup.text }}</span>
+      <button onClick="{{ cl.dup.onSecondary }}" style="height:26px;padding:0 10px;border:1px solid #e6cf9c;border-radius:6px;background:#fff;font:inherit;font-size:12px;color:#6b4705;cursor:pointer;white-space:nowrap">{{ cl.dup.secondary }}</button>
+      <button onClick="{{ cl.dup.onAction }}" style="height:26px;padding:0 10px;border:1px solid #8a5a06;border-radius:6px;background:#8a5a06;font:inherit;font-size:12px;color:#fff;cursor:pointer;white-space:nowrap">{{ cl.dup.action }}</button>
+    </div>
+  </sc-if>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #e8e6e1">
+    <div style="display:flex;gap:16px">
+      <sc-for list="{{ cl.saved }}" as="s" hint-placeholder-count="4">
+        <button onClick="{{ s.onClick }}" style="height:34px;padding:0 2px;border:0;border-bottom:2px solid {{ s.border }};margin-bottom:-1px;background:none;font:inherit;font-size:12.5px;color:{{ s.color }};font-weight:{{ s.weight }};cursor:pointer;display:flex;align-items:center;gap:6px">{{ s.label }}<span style="font-size:11px;color:#9a968f;font-variant-numeric:tabular-nums">{{ s.n }}</span></button>
+      </sc-for>
+    </div>
+    <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#8a867f;margin-bottom:6px">Sort
+      <select value="{{ cl.sort }}" onChange="{{ cl.onSort }}" style="height:28px;border:1px solid #e1dfd9;border-radius:6px;background:#fff;font:inherit;font-size:12px;color:#1d1c1a;padding:0 4px"><option value="last">Last interaction</option><option value="turnover">Turnover</option><option value="name">Name</option></select>
+    </label>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:8px;width:340px;height:30px;padding:0 10px;border:1px solid #e1dfd9;border-radius:7px;background:#fff">
+      <span style="font-family:'Material Symbols Outlined';font-size:16px;line-height:1;color:#9a968f">search</span>
+      <input ref="{{ searchRef }}" value="{{ cl.q }}" onChange="{{ cl.onQ }}" placeholder="Name, EDRPOU, contact or phone" style="flex:1;min-width:0;border:0;outline:none;font:inherit;font-size:12.5px;background:transparent;color:#1d1c1a">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;border:1px solid #e1dfd9;border-radius:4px;padding:0 5px;color:#8a867f">/</span>
+    </div>
+    <sc-for list="{{ cl.chips }}" as="ch" hint-placeholder-count="1">
+      <span style="display:inline-flex;align-items:center;gap:4px;height:26px;padding:0 4px 0 9px;border-radius:13px;background:#eef1fc;color:#2f47b0;font-size:12px;font-weight:500">{{ ch.label }}<button onClick="{{ ch.onRemove }}" title="Remove filter" style="width:18px;height:18px;border:0;border-radius:50%;background:transparent;color:#2f47b0;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0" style-hover="background:#dde3fa"><span style="font-family:'Material Symbols Outlined';font-size:14px;line-height:1">close</span></button></span>
+    </sc-for>
+    <div style="position:relative">
+      <button onClick="{{ cl.toggleFilter }}" style="height:26px;padding:0 10px;border:1px dashed #cfccc4;border-radius:13px;background:#fff;font:inherit;font-size:12px;color:#55524c;cursor:pointer;display:flex;align-items:center;gap:4px"><span style="font-family:'Material Symbols Outlined';font-size:14px;line-height:1">add</span>Filter</button>
+      <sc-if value="{{ cl.filterMenu }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;top:30px;left:0;z-index:10;width:200px;background:#fff;border:1px solid #e1dfd9;border-radius:8px;box-shadow:0 8px 24px rgba(28,27,26,.1);padding:4px">
+          <sc-for list="{{ cl.presets }}" as="pr" hint-placeholder-count="3"><button onClick="{{ pr.onClick }}" style="display:block;width:100%;height:28px;padding:0 10px;border:0;border-radius:5px;background:transparent;font:inherit;font-size:12.5px;text-align:left;cursor:pointer" style-hover="background:#f4f3ef">{{ pr.label }}</button></sc-for>
+        </div>
+      </sc-if>
+    </div>
+    <sc-if value="{{ cl.hasChips }}" hint-placeholder-val="{{ true }}">
+      <button onClick="{{ cl.onSaveFilter }}" style="border:0;background:none;font:inherit;font-size:12px;color:#3b54d1;cursor:pointer">Save filter</button>
+      <button onClick="{{ cl.onClearChips }}" style="border:0;background:none;font:inherit;font-size:12px;color:#8a867f;cursor:pointer">Reset</button>
+    </sc-if>
+  </div>
+  <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px;overflow:hidden">
+    <div style="display:grid;grid-template-columns:minmax(180px,2.2fr) 96px minmax(0,1.3fr) minmax(0,0.9fr) 92px 118px 128px 88px 86px;gap:12px;padding:0 14px;height:34px;align-items:center;font-size:11.5px;color:#8a867f;border-bottom:1px solid #efede9;background:#fbfaf8">
+      <span>Client</span><span>EDRPOU / Tax ID</span><span>Industry</span><span>Region</span><span style="text-align:right">Turnover</span><span style="text-align:right">Open deals</span><span>Owner</span><span>Contact</span><span>Status</span>
+    </div>
+    <sc-for list="{{ cl.rows }}" as="r" hint-placeholder-count="10">
+      <div onClick="{{ r.onClick }}" onMouseEnter="{{ r.onEnter }}" style="display:grid;grid-template-columns:minmax(180px,2.2fr) 96px minmax(0,1.3fr) minmax(0,0.9fr) 92px 118px 128px 88px 86px;gap:12px;padding:0 14px;height:44px;align-items:center;border-bottom:1px solid #f4f2ee;background:{{ r.bg }};cursor:pointer">
+        <div style="display:flex;align-items:center;gap:9px;min-width:0">
+          <span style="width:24px;height:24px;flex:none;border-radius:5px;background:#f0efeb;color:#55524c;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600">{{ r.ini }}</span>
+          <span style="min-width:0;display:flex;flex-direction:column"><span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="{{ r.name }}">{{ r.name }}</span><span style="font-size:11.5px;color:{{ r.lastColor }}">{{ r.last }}</span></span>
+          <sc-if value="{{ r.isDup }}" hint-placeholder-val="{{ false }}"><span title="Same EDRPOU as another record" style="flex:none;font-size:10.5px;font-weight:500;padding:1px 6px;border-radius:4px;background:#fcf1db;color:#8a5a06">Duplicate</span></sc-if>
+        </div>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#55524c">{{ r.code }}</span>
+        <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#55524c" title="{{ r.industry }}">{{ r.industry }}</span>
+        <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#55524c">{{ r.region }}</span>
+        <span style="text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap">{{ r.turnover }}</span>
+        <span style="text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;color:#55524c">{{ r.deals }}</span>
+        <span style="display:flex;align-items:center;gap:6px;min-width:0"><span style="width:20px;height:20px;flex:none;border-radius:50%;background:#e4e8fa;color:#2f47b0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600">{{ r.ownerIni }}</span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#55524c;font-size:12px" title="{{ r.owner }}">{{ r.owner }}</span></span>
+        <span style="font-size:11.5px;color:#6f6c67;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums" title="{{ r.contact }}">{{ r.contact }}</span>
+        <span style="justify-self:start;font-size:11.5px;font-weight:500;padding:2px 7px;border-radius:4px;background:{{ r.sbg }};color:{{ r.sfg }}">{{ r.status }}</span>
+      </div>
+    </sc-for>
+    <sc-if value="{{ cl.isEmpty }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:40px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px">
+        <span style="font-family:'Material Symbols Outlined';font-size:24px;line-height:1;color:#b3afa7">search_off</span>
+        <div style="font-weight:500">{{ cl.emptyText }}</div>
+        <div style="color:#8a867f;font-size:12px">Check the spelling or search by EDRPOU / phone number</div>
+        <button onClick="{{ cl.onClearChips }}" style="margin-top:4px;height:28px;padding:0 12px;border:1px solid #e1dfd9;border-radius:6px;background:#fff;font:inherit;font-size:12px;cursor:pointer">Clear search and filters</button>
+      </div>
+    </sc-if>
+  </div>
+  <div style="display:flex;gap:14px;font-size:11.5px;color:#9a968f"><span><b style="font-family:'IBM Plex Mono',monospace;font-weight:500">/</b> search</span><span><b style="font-family:'IBM Plex Mono',monospace;font-weight:500">↑ ↓</b> navigate</span><span><b style="font-family:'IBM Plex Mono',monospace;font-weight:500">Enter</b> open card</span></div>
+</div>
+</sc-if>
+<sc-if value="{{ show.locked }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="No access" style="max-width:420px;margin:96px auto;background:#fff;border:1px solid #e8e6e1;border-radius:10px;padding:28px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px">
+    <div style="width:44px;height:44px;border-radius:10px;background:#f0efeb;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Outlined';font-size:22px;line-height:1;color:#55524c">lock</span></div>
+    <div style="font-size:15px;font-weight:600">{{ lk.name }}</div>
+    <div style="color:#6f6c67">Owner: <b style="color:#1d1c1a;font-weight:500">{{ lk.owner }}</b></div>
+    <div style="color:#8a867f;font-size:12px;text-wrap:pretty">Managers only see their own clients. Ask the owner or the head of department for access.</div>
+    <div style="display:flex;gap:8px;margin-top:6px"><button onClick="{{ lk.onBack }}" style="height:30px;padding:0 12px;border:1px solid #e1dfd9;border-radius:6px;background:#fff;font:inherit;font-size:12.5px;cursor:pointer">Back to my clients</button><button onClick="{{ lk.onRequest }}" style="height:30px;padding:0 12px;border:1px solid #3b54d1;border-radius:6px;background:#3b54d1;color:#fff;font:inherit;font-size:12.5px;font-weight:500;cursor:pointer">Request access</button></div>
+  </div>
+</sc-if>
+<sc-if value="{{ show.client }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Client card" style="padding:16px 24px 32px;display:flex;flex-direction:column;gap:14px;max-width:1640px">
+  <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px;padding:16px;display:flex;align-items:center;gap:14px">
+    <span style="width:44px;height:44px;flex:none;border-radius:9px;background:#f0efeb;color:#55524c;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600">{{ c.ini }}</span>
+    <div style="min-width:0;flex:1;display:flex;flex-direction:column;gap:5px">
+      <div style="display:flex;align-items:center;gap:8px;min-width:0"><span style="font-size:19px;font-weight:600;letter-spacing:-0.015em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="{{ c.name }}">{{ c.name }}</span>
+        <sc-for list="{{ c.badges }}" as="b" hint-placeholder-count="2"><span style="flex:none;font-size:11.5px;font-weight:500;padding:2px 7px;border-radius:4px;background:{{ b.bg }};color:{{ b.fg }}">{{ b.l }}</span></sc-for>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;color:#6f6c67;font-size:12.5px;min-width:0"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.meta }}</span><span style="display:flex;align-items:center;gap:6px;flex:none"><span style="width:18px;height:18px;border-radius:50%;background:#e4e8fa;color:#2f47b0;display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:600">{{ c.ownerIni }}</span>{{ c.owner }}</span></div>
+    </div>
+    <div style="display:flex;gap:6px;flex:none">
+      <button onClick="{{ c.onCall }}" style="height:30px;padding:0 10px;border:1px solid #e1dfd9;border-radius:6px;background:#fff;font:inherit;font-size:12.5px;cursor:pointer;display:flex;align-items:center;gap:5px"><span style="font-family:'Material Symbols Outlined';font-size:16px;line-height:1">call</span>Call</button>
+      <button onClick="{{ c.onMail }}" style="height:30px;padding:0 10px;border:1px solid #e1dfd9;border-radius:6px;background:#fff;font:inherit;font-size:12.5px;cursor:pointer;display:flex;align-items:center;gap:5px"><span style="font-family:'Material Symbols Outlined';font-size:16px;line-height:1">mail</span>Email</button>
+      <button onClick="{{ c.onNoteFocus }}" style="height:30px;padding:0 10px;border:1px solid #e1dfd9;border-radius:6px;background:#fff;font:inherit;font-size:12.5px;cursor:pointer;display:flex;align-items:center;gap:5px"><span style="font-family:'Material Symbols Outlined';font-size:16px;line-height:1">edit_note</span>Note</button>
+      <button onClick="{{ c.onTask }}" style="height:30px;padding:0 10px;border:1px solid #e1dfd9;border-radius:6px;background:#fff;font:inherit;font-size:12.5px;cursor:pointer;display:flex;align-items:center;gap:5px"><span style="font-family:'Material Symbols Outlined';font-size:16px;line-height:1">add_task</span>Task</button>
+      <button onClick="{{ c.onNewDeal }}" style="height:30px;padding:0 12px;border:1px solid #3b54d1;border-radius:6px;background:#3b54d1;color:#fff;font:inherit;font-size:12.5px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:5px"><span style="font-family:'Material Symbols Outlined';font-size:16px;line-height:1">add</span>New deal</button>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px;align-items:start">
+    <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px">
+      <div style="padding:12px 14px;border-bottom:1px solid #efede9;display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div style="font-weight:600">Interaction history</div>
+        <div style="display:flex;padding:2px;background:#f0efeb;border-radius:7px;gap:2px">
+          <sc-for list="{{ c.tlOpts }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.onClick }}" style="height:24px;padding:0 9px;border:0;border-radius:5px;background:{{ o.bg }};color:{{ o.fg }};box-shadow:{{ o.shadow }};font:inherit;font-size:12px;cursor:pointer">{{ o.label }}</button></sc-for>
+        </div>
+      </div>
+      <div style="padding:12px 14px;border-bottom:1px solid #efede9;display:flex;flex-direction:column;gap:8px">
+        <textarea ref="{{ noteRef }}" value="{{ c.note }}" onChange="{{ c.onNote }}" onKeyDown="{{ c.onNoteKey }}" rows="2" placeholder="Add a note about the call, agreements, next step…" style="width:100%;resize:vertical;border:1px solid #e1dfd9;border-radius:7px;padding:8px 10px;font:inherit;font-size:12.5px;color:#1d1c1a;outline:none;background:#fbfaf8" style-focus="border-color:#3b54d1;background:#fff"></textarea>
+        <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:11.5px;color:#9a968f">⌘ + Enter — save</span><button onClick="{{ c.onSaveNote }}" style="height:26px;padding:0 12px;border:0;border-radius:6px;background:{{ c.saveBg }};color:#fff;font:inherit;font-size:12px;font-weight:500;cursor:pointer">Save note</button></div>
+      </div>
+      <div style="padding:4px 14px 14px">
+        <sc-for list="{{ c.groups }}" as="g" hint-placeholder-count="3">
+          <div style="display:flex;flex-direction:column">
+            <div style="display:flex;align-items:center;gap:10px;padding:12px 0 6px;font-size:11.5px;font-weight:600;color:#6f6c67;text-transform:uppercase;letter-spacing:0.04em">{{ g.day }}<span style="flex:1;height:1px;background:#efede9"></span></div>
+            <sc-for list="{{ g.items }}" as="e" hint-placeholder-count="2">
+              <div style="display:flex;flex-direction:column">
+                <sc-if value="{{ e.isManual }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:flex;gap:10px;padding:6px 0">
+                    <span style="width:26px;height:26px;flex:none;border-radius:50%;background:#eef1fc;color:#3b54d1;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Outlined';font-size:15px;line-height:1">{{ e.icon }}</span></span>
+                    <div style="flex:1;min-width:0;border:1px solid #ebe9e4;border-radius:8px;padding:8px 10px">
+                      <div style="display:flex;gap:8px;align-items:baseline;font-size:12px"><span style="font-weight:600">{{ e.typeLabel }}</span><span style="color:#8a867f">{{ e.author }}</span><span style="margin-left:auto;color:#9a968f;font-variant-numeric:tabular-nums">{{ e.time }}</span></div>
+                      <div style="margin-top:3px;text-wrap:pretty">{{ e.text }}</div>
+                    </div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ e.isAuto }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;gap:10px;padding:4px 0;align-items:flex-start">
+                    <span style="width:26px;height:22px;flex:none;display:flex;align-items:center;justify-content:center"><span style="width:18px;height:18px;border-radius:50%;border:1px dashed #c9c5bd;display:flex;align-items:center;justify-content:center;color:#9a968f"><span style="font-family:'Material Symbols Outlined';font-size:12px;line-height:1">{{ e.icon }}</span></span></span>
+                    <div style="flex:1;min-width:0;font-size:12px;color:#6f6c67;padding-top:2px;text-wrap:pretty"><span style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#9a968f;border:1px solid #e8e6e1;border-radius:3px;padding:0 4px;margin-right:6px">auto</span>{{ e.text }}</div>
+                    <span style="font-size:11.5px;color:#b3afa7;padding-top:2px;font-variant-numeric:tabular-nums">{{ e.time }}</span>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+        <sc-if value="{{ c.noTimeline }}" hint-placeholder-val="{{ false }}"><div style="padding:32px 0;text-align:center;color:#8a867f">No interactions yet. Add a note or log a call.</div></sc-if>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="background:#eef1fc;border:1px solid #d6ddf7;border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:6px">
+        <div style="font-size:11px;font-weight:600;color:#2f47b0;text-transform:uppercase;letter-spacing:0.05em">Next step</div>
+        <sc-if value="{{ c.next.has }}" hint-placeholder-val="{{ true }}">
+          <div style="font-weight:600">{{ c.next.title }}</div>
+          <div style="font-size:12.5px;color:#2f47b0">{{ c.next.when }}</div>
+          <div style="font-size:12px;color:#55524c">{{ c.next.where }}</div>
+          <button onClick="{{ c.next.onCta }}" style="align-self:flex-start;margin-top:4px;height:26px;padding:0 10px;border:1px solid #3b54d1;border-radius:6px;background:#3b54d1;color:#fff;font:inherit;font-size:12px;cursor:pointer">{{ c.next.cta }}</button>
+        </sc-if>
+        <sc-if value="{{ c.next.none }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:12.5px;color:#8a5a06">No next step planned — the client may go cold.</div>
+          <button onClick="{{ c.onTask }}" style="align-self:flex-start;height:26px;padding:0 10px;border:1px solid #3b54d1;border-radius:6px;background:#fff;color:#3b54d1;font:inherit;font-size:12px;cursor:pointer">Schedule</button>
+        </sc-if>
+      </div>
+      <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px">
+        <div style="padding:10px 14px;border-bottom:1px solid #efede9;display:flex;justify-content:space-between"><span style="font-weight:600">Details</span><span style="font-size:11.5px;color:#9a968f">click to edit</span></div>
+        <div style="padding:4px 0">
+          <sc-for list="{{ c.req }}" as="r" hint-placeholder-count="6">
+            <div style="display:grid;grid-template-columns:110px minmax(0,1fr);gap:10px;align-items:center;padding:0 14px;min-height:32px">
+              <span style="font-size:12px;color:#8a867f">{{ r.label }}</span>
+              <sc-if value="{{ r.notEditing }}" hint-placeholder-val="{{ true }}"><button onClick="{{ r.onEdit }}" style="text-align:left;border:1px solid transparent;border-radius:5px;background:transparent;padding:3px 6px;margin-left:-7px;font:inherit;font-family:{{ r.font }};font-size:12.5px;color:#1d1c1a;cursor:text;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" style-hover="border-color:#e1dfd9;background:#fbfaf8" title="{{ r.value }}">{{ r.value }}</button></sc-if>
+              <sc-if value="{{ r.editing }}" hint-placeholder-val="{{ false }}"><input autoFocus="{{ true }}" value="{{ r.value }}" onChange="{{ r.onChange }}" onBlur="{{ r.onBlur }}" onKeyDown="{{ r.onKey }}" style="width:100%;height:26px;margin-left:-7px;border:1px solid #3b54d1;border-radius:5px;padding:0 6px;font:inherit;font-family:{{ r.font }};font-size:12.5px;outline:none;box-shadow:0 0 0 3px #e4e8fa"></sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px">
+        <div style="padding:10px 14px;border-bottom:1px solid #efede9;font-weight:600">Contacts</div>
+        <sc-for list="{{ c.contacts }}" as="k" hint-placeholder-count="2">
+          <div style="padding:9px 14px;border-bottom:1px solid #f4f2ee;display:flex;flex-direction:column;gap:2px">
+            <div style="display:flex;justify-content:space-between;gap:8px"><span style="font-weight:500">{{ k.name }}</span><span style="font-size:11.5px;color:#8a867f">{{ k.role }}</span></div>
+            <div style="font-size:12px;color:#55524c;font-variant-numeric:tabular-nums">{{ k.phone }}</div>
+            <div style="font-size:12px;color:#3b54d1">{{ k.email }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px">
+        <div style="padding:10px 14px;border-bottom:1px solid #efede9;font-weight:600">Open deals</div>
+        <sc-for list="{{ c.deals }}" as="d" hint-placeholder-count="1">
+          <button onClick="{{ d.onClick }}" style="display:flex;flex-direction:column;gap:4px;width:100%;padding:9px 14px;border:0;border-bottom:1px solid #f4f2ee;background:#fff;font:inherit;color:inherit;text-align:left;cursor:pointer" style-hover="background:#faf9f7">
+            <div style="display:flex;justify-content:space-between;gap:8px"><span style="font-weight:500">{{ d.product }}</span><span style="font-weight:500;font-variant-numeric:tabular-nums">{{ d.amount }}</span></div>
+            <div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span style="font-size:12px;color:#8a867f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.purpose }}</span><span style="flex:none;font-size:11px;font-weight:500;padding:1px 6px;border-radius:4px;background:{{ d.sbg }};color:{{ d.sfg }}">{{ d.stage }}</span></div>
+          </button>
+        </sc-for>
+        <sc-if value="{{ c.noDeals }}" hint-placeholder-val="{{ false }}"><div style="padding:14px;color:#8a867f;font-size:12.5px">No open deals</div></sc-if>
+      </div>
+      <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px">
+        <div style="padding:10px 14px;border-bottom:1px solid #efede9;font-weight:600">Open tasks</div>
+        <sc-for list="{{ c.tasks }}" as="t" hint-placeholder-count="2">
+          <div style="display:flex;gap:9px;align-items:flex-start;padding:8px 14px;border-bottom:1px solid #f4f2ee">
+            <button onClick="{{ t.onToggle }}" style="width:15px;height:15px;margin-top:2px;flex:none;border:1.5px solid #cfccc4;border-radius:4px;background:#fff;cursor:pointer;padding:0"></button>
+            <div style="min-width:0;flex:1"><div style="font-size:12.5px">{{ t.title }}</div><div style="font-size:11.5px;color:{{ t.dueColor }}">{{ t.due }}</div></div>
+            <sc-if value="{{ t.isAuto }}" hint-placeholder-val="{{ false }}"><span title="Created automatically" style="font-family:'Material Symbols Outlined';font-size:14px;line-height:1;color:#9a968f">bolt</span></sc-if>
+          </div>
+        </sc-for>
+        <sc-if value="{{ c.noTasks }}" hint-placeholder-val="{{ false }}"><div style="padding:14px;color:#8a867f;font-size:12.5px">No tasks</div></sc-if>
+      </div>
+      <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-weight:600">Client LTV</span><span style="font-size:16px;font-weight:600;font-variant-numeric:tabular-nums">{{ c.ltv }}</span></div>
+        <sc-for list="{{ c.ltvRows }}" as="h" hint-placeholder-count="1">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:#55524c;gap:8px"><span>{{ h.label }} · {{ h.amount }}</span><span style="font-variant-numeric:tabular-nums">+{{ h.fee }}</span></div>
+        </sc-for>
+        <sc-if value="{{ c.noLtv }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:#8a867f">First deal with this client</div></sc-if>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#8a867f;border-top:1px dashed #e8e6e1;padding-top:8px"><span>Open deals potential (2%)</span><span style="font-variant-numeric:tabular-nums">{{ c.pot }}</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</sc-if>
+<sc-if value="{{ show.pipeline }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Pipeline" style="display:flex;flex-direction:column;height:100%;min-height:0">
+  <div style="padding:16px 24px 12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <div style="display:flex;flex-direction:column"><span style="font-size:19px;font-weight:600;letter-spacing:-0.015em">Deal pipeline</span><span style="color:#8a867f;font-variant-numeric:tabular-nums;margin-top:2px">{{ p.sub }}</span></div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+      <sc-if value="{{ p.hasOwner }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:4px;height:28px;padding:0 4px 0 10px;border-radius:14px;background:#eef1fc;color:#2f47b0;font-size:12px;font-weight:500">{{ p.ownerChip }}<button onClick="{{ p.onOwnerClear }}" style="width:20px;height:20px;border:0;border-radius:50%;background:transparent;color:#2f47b0;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0"><span style="font-family:'Material Symbols Outlined';font-size:14px;line-height:1">close</span></button></span></sc-if>
+      <button onClick="{{ p.onStuck }}" style="height:28px;padding:0 10px;border:1px solid {{ p.stuckBorder }};border-radius:6px;background:{{ p.stuckBg }};color:{{ p.stuckFg }};font:inherit;font-size:12.5px;cursor:pointer;display:flex;align-items:center;gap:5px"><span style="font-family:'Material Symbols Outlined';font-size:15px;line-height:1">timer</span>Over SLA only</button>
+      <div style="display:flex;padding:2px;background:#f0efeb;border-radius:7px;gap:2px">
+        <sc-for list="{{ p.viewOpts }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="height:24px;padding:0 10px;border:0;border-radius:5px;background:{{ o.bg }};color:{{ o.fg }};box-shadow:{{ o.shadow }};font:inherit;font-size:12.5px;cursor:pointer">{{ o.label }}</button></sc-for>
+      </div>
+    </div>
+  </div>
+  <sc-if value="{{ p.isKanban }}" hint-placeholder-val="{{ true }}">
+    <div style="flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;padding:0 24px 16px">
+      <div style="flex:1;min-height:0;overflow:auto;display:flex;gap:10px;align-items:stretch">
+        <sc-for list="{{ p.cols }}" as="col" hint-placeholder-count="7">
+          <div onDragOver="{{ col.onDragOver }}" onDrop="{{ col.onDrop }}" style="flex:1 0 212px;min-width:212px;display:flex;flex-direction:column;background:{{ col.bg }};border:1px dashed {{ col.border }};border-radius:8px;min-height:0">
+            <div style="padding:10px 10px 8px;display:flex;flex-direction:column;gap:2px">
+              <div style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;border-radius:2px;background:{{ col.dot }}"></span><span style="font-weight:600;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ col.label }}</span><span style="font-size:11.5px;color:#8a867f;font-variant-numeric:tabular-nums">{{ col.count }}</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:11.5px;color:#8a867f;font-variant-numeric:tabular-nums"><span>{{ col.sum }}</span><span>{{ col.sla }}</span></div>
+            </div>
+            <div style="flex:1;overflow:auto;padding:0 6px 8px;display:flex;flex-direction:column;gap:6px">
+              <sc-for list="{{ col.cards }}" as="k" hint-placeholder-count="2">
+                <div draggable="true" onDragStart="{{ k.onDragStart }}" onDragEnd="{{ k.onDragEnd }}" onClick="{{ k.onClick }}" style="background:{{ k.bg }};border:1px solid {{ k.border }};border-radius:7px;padding:9px 10px;display:flex;flex-direction:column;gap:6px;cursor:grab;opacity:{{ k.opacity }};box-shadow:0 1px 1px rgba(28,27,26,.03)" style-hover="box-shadow:0 2px 8px rgba(28,27,26,.08)">
+                  <div style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="{{ k.name }}">{{ k.name }}</div>
+                  <div style="display:flex;justify-content:space-between;gap:6px;align-items:baseline"><span style="font-size:12px;color:#6f6c67;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="{{ k.purpose }}">{{ k.product }}</span><span style="font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;font-size:12.5px">{{ k.amount }}</span></div>
+                  <sc-if value="{{ k.hasDoc }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:2px 6px;border-radius:4px;background:#fcf1db;color:#8a5a06;align-self:flex-start"><span style="font-family:'Material Symbols Outlined';font-size:13px;line-height:1">description</span>{{ k.doc }}</div></sc-if>
+                  <div style="display:flex;align-items:center;gap:8px;font-size:11.5px;color:{{ k.slaColor }};font-variant-numeric:tabular-nums">
+                    <span style="display:flex;align-items:center;gap:3px;font-weight:{{ k.slaWeight }}"><span style="font-family:'Material Symbols Outlined';font-size:13px;line-height:1">timer</span>{{ k.sla }}</span>
+                    <sc-if value="{{ k.hasApps }}" hint-placeholder-val="{{ false }}"><span style="display:flex;align-items:center;gap:3px;color:#8a867f"><span style="font-family:'Material Symbols Outlined';font-size:13px;line-height:1">account_balance</span>{{ k.apps }}</span></sc-if>
+                    <span title="{{ k.ownerName }}" style="margin-left:auto;width:20px;height:20px;border-radius:50%;background:#e4e8fa;color:#2f47b0;display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:600">{{ k.ownerIni }}</span>
+                  </div>
+                </div>
+              </sc-for>
+              <sc-if value="{{ col.isEmpty }}" hint-placeholder-val="{{ false }}"><div style="padding:16px 8px;text-align:center;font-size:11.5px;color:#b3afa7;border:1px dashed #dcd9d2;border-radius:7px">No deals</div></sc-if>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:none">
+        <sc-for list="{{ p.zones }}" as="z" hint-placeholder-count="2">
+          <div onDragOver="{{ z.onDragOver }}" onDrop="{{ z.onDrop }}" style="height:44px;border:1px dashed {{ z.border }};border-radius:8px;background:{{ z.bg }};display:flex;align-items:center;justify-content:center;gap:8px;color:{{ z.color }}">
+            <span style="font-family:'Material Symbols Outlined';font-size:18px;line-height:1">{{ z.icon }}</span><span style="font-weight:600">{{ z.label }}</span><span style="font-size:12px;color:#8a867f">— {{ z.hint }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ p.isTable }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:0 24px 24px">
+      <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px;overflow:hidden">
+        <div style="display:grid;grid-template-columns:minmax(180px,2fr) 150px 110px 120px 90px 60px 110px 130px;gap:12px;padding:0 14px;height:34px;align-items:center;font-size:11.5px;color:#8a867f;border-bottom:1px solid #efede9;background:#fbfaf8"><span>Client</span><span>Stage</span><span>Product</span><span style="text-align:right">Amount</span><span style="text-align:right">In stage</span><span style="text-align:right">Prob.</span><span style="text-align:right">Exp. commission</span><span>Owner</span></div>
+        <sc-for list="{{ p.rows }}" as="r" hint-placeholder-count="8">
+          <div onClick="{{ r.onClick }}" style="display:grid;grid-template-columns:minmax(180px,2fr) 150px 110px 120px 90px 60px 110px 130px;gap:12px;padding:0 14px;height:40px;align-items:center;border-bottom:1px solid #f4f2ee;cursor:pointer;font-variant-numeric:tabular-nums" style-hover="background:#faf9f7">
+            <span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="{{ r.name }}">{{ r.name }}</span>
+            <span style="justify-self:start;font-size:11.5px;font-weight:500;padding:2px 7px;border-radius:4px;background:{{ r.sbg }};color:{{ r.sfg }};white-space:nowrap">{{ r.stage }}</span>
+            <span style="color:#55524c">{{ r.product }}</span>
+            <span style="text-align:right">{{ r.amount }}</span>
+            <span style="text-align:right;color:{{ r.dayColor }}">{{ r.days }}</span>
+            <span style="text-align:right;color:#6f6c67">{{ r.prob }}</span>
+            <span style="text-align:right">{{ r.exp }}</span>
+            <span style="color:#55524c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.owner }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</sc-if>
+<sc-if value="{{ show.deal }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Deal card" style="padding:16px 24px 32px;display:flex;flex-direction:column;gap:14px;max-width:1640px">
+  <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px">
+    <div style="padding:16px;display:flex;align-items:flex-start;gap:14px">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+        <button onClick="{{ dl.onClient }}" style="align-self:flex-start;border:0;background:none;padding:0;font:inherit;font-size:12.5px;color:#3b54d1;cursor:pointer;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ dl.name }}</button>
+        <div style="display:flex;align-items:center;gap:10px;min-width:0"><span style="font-size:19px;font-weight:600;letter-spacing:-0.015em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="{{ dl.title }}">{{ dl.title }}</span><span style="flex:none;font-size:11.5px;font-weight:500;padding:2px 7px;border-radius:4px;background:{{ dl.sbg }};color:{{ dl.sfg }}">{{ dl.stage }}</span></div>
+        <div style="display:flex;gap:14px;color:#6f6c67;font-size:12.5px"><span>Requested: <b style="color:#1d1c1a;font-weight:600;font-variant-numeric:tabular-nums">{{ dl.amount }}</b></span><span>Created {{ dl.created }}</span><span style="display:flex;align-items:center;gap:6px"><span style="width:18px;height:18px;border-radius:50%;background:#e4e8fa;color:#2f47b0;display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:600">{{ dl.ownerIni }}</span>{{ dl.owner }}</span></div>
+      </div>
+      <sc-if value="{{ dl.canLose }}" hint-placeholder-val="{{ true }}"><button onClick="{{ dl.onLost }}" style="height:30px;padding:0 12px;border:1px solid #e1dfd9;border-radius:6px;background:#fff;font:inherit;font-size:12.5px;color:#b3261e;cursor:pointer">Mark as lost</button></sc-if>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));padding:4px 16px 16px">
+      <sc-for list="{{ dl.steps }}" as="s" hint-placeholder-count="7">
+        <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+          <div style="display:flex;align-items:center">
+            <span style="width:22px;height:22px;flex:none;border-radius:50%;background:{{ s.bg }};border:1.5px solid {{ s.border }};color:{{ s.fg }};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600">
+              <sc-if value="{{ s.done }}" hint-placeholder-val="{{ false }}"><span style="font-family:'Material Symbols Outlined';font-size:14px;line-height:1">check</span></sc-if>
+              <sc-if value="{{ s.notDone }}" hint-placeholder-val="{{ true }}">{{ s.n }}</sc-if>
+            </span>
+            <sc-if value="{{ s.notLast }}" hint-placeholder-val="{{ true }}"><span style="flex:1;height:2px;background:{{ s.lc }};margin:0 6px;border-radius:1px"></span></sc-if>
+          </div>
+          <div style="font-size:12px;color:{{ s.labelColor }};font-weight:{{ s.weight }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:8px" title="{{ s.label }}">{{ s.label }}</div>
+          <div style="font-size:11px;color:{{ s.subColor }};margin-top:-4px">{{ s.sub }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  <sc-if value="{{ dl.proposal }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;border:1px solid #cde5d4;background:#f3faf5;border-radius:8px">
+      <span style="font-family:'Material Symbols Outlined';font-size:20px;line-height:1;color:#1d7a3e">payments</span>
+      <div style="flex:1"><div style="font-weight:600">Awaiting disbursement</div><div style="font-size:12.5px;color:#55524c">{{ dl.proposalText }}</div></div>
+      <button onClick="{{ dl.onDisburse }}" style="height:30px;padding:0 12px;border:1px solid #1d7a3e;border-radius:6px;background:#1d7a3e;color:#fff;font:inherit;font-size:12.5px;font-weight:500;cursor:pointer;white-space:nowrap">Confirm disbursement</button>
+    </div>
+  </sc-if>
+  <sc-if value="{{ dl.isWon }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border:1px solid #cde5d4;background:#f3faf5;border-radius:8px;color:#1c6f39"><span style="font-family:'Material Symbols Outlined';font-size:20px;line-height:1">verified</span><b style="font-weight:600">Deal won · funds disbursed Sep 29.</b><span style="color:#55524c">Task “Issue commission invoice” was created automatically.</span></div>
+  </sc-if>
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px;align-items:start">
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px;overflow:hidden">
+        <div style="padding:12px 14px;border-bottom:1px solid #efede9;display:flex;justify-content:space-between;align-items:center"><span style="font-weight:600">Bank applications</span><button onClick="{{ dl.onAddApp }}" style="height:26px;padding:0 10px;border:1px solid #e1dfd9;border-radius:6px;background:#fff;font:inherit;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px"><span style="font-family:'Material Symbols Outlined';font-size:15px;line-height:1">add</span>Application</button></div>
+        <sc-if value="{{ dl.hasApps }}" hint-placeholder-val="{{ true }}">
+          <div style="display:grid;grid-template-columns:minmax(130px,1.4fr) 116px 112px 56px 60px 60px 60px;gap:10px;padding:0 14px;height:32px;align-items:center;font-size:11.5px;color:#8a867f;border-bottom:1px solid #f2f0ec;background:#fbfaf8"><span>Bank</span><span>Status</span><span style="text-align:right">Amount</span><span style="text-align:right">Rate</span><span style="text-align:right">Term</span><span style="text-align:right">Submitted</span><span style="text-align:right">Decision</span></div>
+          <sc-for list="{{ dl.apps }}" as="a" hint-placeholder-count="4">
+            <div style="padding:9px 14px;border-bottom:1px solid #f4f2ee;display:flex;flex-direction:column;gap:4px;opacity:{{ a.rowOp }}">
+              <div style="display:grid;grid-template-columns:minmax(130px,1.4fr) 116px 112px 56px 60px 60px 60px;gap:10px;align-items:center;font-variant-numeric:tabular-nums">
+                <span style="display:flex;align-items:center;gap:8px;min-width:0"><span style="width:22px;height:22px;flex:none;border-radius:5px;background:#f0efeb;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:600;color:#55524c">{{ a.ini }}</span><span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ a.bank }}</span></span>
+                <span style="justify-self:start;font-size:11.5px;font-weight:500;padding:2px 7px;border-radius:4px;background:{{ a.sbg }};color:{{ a.sfg }};white-space:nowrap">{{ a.status }}</span>
+                <span style="text-align:right;white-space:nowrap">{{ a.amount }}</span>
+                <span style="text-align:right">{{ a.rate }}</span>
+                <span style="text-align:right;color:#6f6c67">{{ a.term }}</span>
+                <span style="text-align:right;color:#6f6c67">{{ a.sub }}</span>
+                <span style="text-align:right;color:#6f6c67">{{ a.dec }}</span>
+              </div>
+              <sc-if value="{{ a.hasReason }}" hint-placeholder-val="{{ false }}"><div style="margin-left:30px;font-size:12px;color:#b3261e;display:flex;gap:5px"><span style="font-family:'Material Symbols Outlined';font-size:14px;line-height:1.1">subdirectory_arrow_right</span>{{ a.reason }}</div></sc-if>
+            </div>
+          </sc-for>
+        </sc-if>
+        <sc-if value="{{ dl.noApps }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:24px 14px;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center"><span style="font-family:'Material Symbols Outlined';font-size:22px;line-height:1;color:#b3afa7">account_balance</span><div style="font-weight:500">No applications yet</div><div style="font-size:12px;color:#8a867f">Recommended for this client profile: {{ dl.recBanks }}</div></div>
+        </sc-if>
+      </div>
+      <sc-if value="{{ dl.hasSuggest }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:12px;align-items:center;padding:11px 14px;border:1px solid #e8e6e1;background:#fff;border-radius:8px">
+          <span style="width:28px;height:28px;flex:none;border-radius:7px;background:#fcf1db;color:#8a5a06;display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Outlined';font-size:17px;line-height:1">alt_route</span></span>
+          <div style="flex:1;min-width:0"><div style="font-weight:600">Backup bank in case disbursement falls through</div><div style="font-size:12.5px;color:#55524c;text-wrap:pretty">{{ dl.suggest }}</div></div>
+          <button onClick="{{ dl.onBackup }}" style="height:28px;padding:0 10px;border:1px solid #e1dfd9;border-radius:6px;background:#fff;font:inherit;font-size:12px;cursor:pointer;white-space:nowrap">Create application</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{ dl.hasOffers }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px">
+          <div style="padding:12px 14px;border-bottom:1px solid #efede9"><span style="font-weight:600">Approved offers comparison</span><span style="color:#8a867f;margin-left:8px">{{ dl.offerCount }}</span></div>
+          <div style="padding:12px 14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">
+            <sc-for list="{{ dl.offers }}" as="o" hint-placeholder-count="2">
+              <div style="border:1px solid {{ o.border }};background:{{ o.bg }};border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px">
+                <div style="display:flex;align-items:center;gap:6px"><span style="font-weight:600;flex:1">{{ o.bank }}</span>
+                  <sc-if value="{{ o.isBest }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:500;padding:1px 6px;border-radius:4px;background:#e2f3e7;color:#1c6f39">Lowest rate</span></sc-if>
+                  <sc-if value="{{ o.chosen }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:500;padding:1px 6px;border-radius:4px;background:#dff2f0;color:#0f6a64">Chosen by client</span></sc-if>
+                </div>
+                <div style="font-size:24px;font-weight:600;letter-spacing:-0.02em;font-variant-numeric:tabular-nums">{{ o.rate }}<span style="font-size:12.5px;font-weight:400;color:#6f6c67;margin-left:6px">p.a. · {{ o.term }}</span></div>
+                <div style="display:grid;grid-template-columns:1fr auto;gap:3px 10px;font-size:12px;font-variant-numeric:tabular-nums"><span style="color:#8a867f">Amount</span><span>{{ o.amount }}</span><span style="color:#8a867f">Payment / mo.</span><span>{{ o.monthly }}</span><span style="color:#8a867f">Total interest</span><span>{{ o.over }}</span></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+      <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px">
+        <div style="padding:12px 14px;border-bottom:1px solid #efede9;display:flex;align-items:center;gap:12px"><span style="font-weight:600">Documents</span><span style="flex:1;max-width:220px;height:5px;background:#f0efeb;border-radius:3px;overflow:hidden"><span style="display:block;height:100%;width:{{ dl.docW }};background:#1d7a3e"></span></span><span style="font-size:12px;color:#6f6c67;font-variant-numeric:tabular-nums">{{ dl.docProg }} received</span></div>
+        <sc-for list="{{ dl.docs }}" as="d" hint-placeholder-count="6">
+          <div style="display:flex;align-items:center;gap:10px;padding:0 14px;min-height:38px;border-bottom:1px solid #f4f2ee">
+            <span style="font-family:'Material Symbols Outlined';font-size:17px;line-height:1;color:{{ d.ic }}">{{ d.icon }}</span>
+            <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="{{ d.t }}">{{ d.t }}</span>
+            <span style="font-size:11.5px;color:#8a867f;white-space:nowrap">{{ d.until }}</span>
+            <span style="font-size:11px;font-weight:500;padding:2px 7px;border-radius:4px;background:{{ d.bg }};color:{{ d.fg }};white-space:nowrap">{{ d.label }}</span>
+            <sc-if value="{{ d.canRequest }}" hint-placeholder-val="{{ false }}"><button onClick="{{ d.onRequest }}" style="height:24px;padding:0 8px;border:1px solid #e1dfd9;border-radius:5px;background:#fff;font:inherit;font-size:11.5px;cursor:pointer">Request</button></sc-if>
+            <sc-if value="{{ d.canRenew }}" hint-placeholder-val="{{ false }}"><button onClick="{{ d.onRenew }}" style="height:24px;padding:0 8px;border:1px solid #8a5a06;border-radius:5px;background:#8a5a06;color:#fff;font:inherit;font-size:11.5px;cursor:pointer">Renew</button></sc-if>
+          </div>
+        </sc-for>
+        <sc-if value="{{ dl.noDocs }}" hint-placeholder-val="{{ false }}"><div style="padding:18px 14px;color:#8a867f;font-size:12.5px">The checklist is generated automatically at “Document collection” — based on product and legal form.</div></sc-if>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:10px">
+        <div style="font-weight:600">Commission</div>
+        <div style="display:flex;justify-content:space-between;font-size:12.5px"><span style="color:#8a867f">Base</span><span style="font-variant-numeric:tabular-nums">{{ dl.baseAmt }}</span></div>
+        <div style="font-size:11.5px;color:#9a968f;margin-top:-6px">{{ dl.baseNote }}</div>
+        <div style="display:flex;align-items:center;gap:10px"><input type="range" min="1" max="3" step="0.1" value="{{ dl.pct }}" onChange="{{ dl.onPct }}" style="flex:1"><span style="width:44px;text-align:right;font-weight:600;font-variant-numeric:tabular-nums">{{ dl.pctLabel }}</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid #f0efeb;padding-top:10px"><span style="color:#6f6c67">Commission on disbursement</span><span style="font-size:18px;font-weight:600;font-variant-numeric:tabular-nums">{{ dl.fee }}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#6f6c67"><span>Weighted · probability {{ dl.prob }}</span><span style="font-variant-numeric:tabular-nums">{{ dl.weighted }}</span></div>
+      </div>
+      <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px">
+        <div style="padding:10px 14px;border-bottom:1px solid #efede9;font-weight:600">Deal tasks</div>
+        <sc-for list="{{ dl.tasks }}" as="t" hint-placeholder-count="2">
+          <div style="display:flex;gap:9px;align-items:flex-start;padding:8px 14px;border-bottom:1px solid #f4f2ee">
+            <button onClick="{{ t.onToggle }}" style="width:15px;height:15px;margin-top:2px;flex:none;border:1.5px solid #cfccc4;border-radius:4px;background:#fff;cursor:pointer;padding:0"></button>
+            <div style="min-width:0;flex:1"><div style="font-size:12.5px">{{ t.title }}</div><div style="font-size:11.5px;color:{{ t.dueColor }}">{{ t.due }}</div></div>
+            <sc-if value="{{ t.isAuto }}" hint-placeholder-val="{{ false }}"><span title="Created automatically" style="font-family:'Material Symbols Outlined';font-size:14px;line-height:1;color:#9a968f">bolt</span></sc-if>
+          </div>
+        </sc-for>
+        <sc-if value="{{ dl.noTasks }}" hint-placeholder-val="{{ false }}"><div style="padding:14px;color:#8a867f;font-size:12.5px">No open tasks</div></sc-if>
+      </div>
+      <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px">
+        <div style="padding:10px 14px;border-bottom:1px solid #efede9;font-weight:600">Deal timeline</div>
+        <div style="padding:8px 14px 12px;display:flex;flex-direction:column;gap:8px">
+          <sc-for list="{{ dl.tl }}" as="e" hint-placeholder-count="4">
+            <div style="display:flex;gap:8px;font-size:12px"><span style="font-family:'Material Symbols Outlined';font-size:14px;line-height:1.2;color:{{ e.color }}">{{ e.icon }}</span><div style="flex:1;min-width:0"><div style="color:#1d1c1a;text-wrap:pretty">{{ e.text }}</div><div style="color:#9a968f;font-size:11px">{{ e.day }} · {{ e.time }}</div></div></div>
+          </sc-for>
+          <sc-if value="{{ dl.noTasks }}" hint-placeholder-val="{{ false }}"></sc-if>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</sc-if>
+<sc-if value="{{ show.tasks }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Tasks" style="padding:20px 24px 32px;display:flex;flex-direction:column;gap:12px;max-width:1280px">
+  <div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:19px;font-weight:600;letter-spacing:-0.015em">Task</span><span style="color:#8a867f;font-variant-numeric:tabular-nums">{{ tk.openCount }} open · {{ tk.autoCount }} created automatically</span></div>
+  <sc-if value="{{ tk.hasBanner }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid #f0c9c3;background:#fdf1ef;border-radius:8px;color:#8f2019">
+      <span style="font-family:'Material Symbols Outlined';font-size:18px;line-height:1">notification_important</span>
+      <span style="flex:1">{{ tk.banner }} Start with high priority.</span>
+      <button onClick="{{ tk.onHideBanner }}" style="height:26px;padding:0 10px;border:1px solid #eab9b2;border-radius:6px;background:#fff;font:inherit;font-size:12px;color:#8f2019;cursor:pointer">Remind me later</button>
+    </div>
+  </sc-if>
+  <div style="background:#fff;border:1px solid #e1dfd9;border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:8px" style-focus-within="border-color:#3b54d1">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-family:'Material Symbols Outlined';font-size:18px;line-height:1;color:#3b54d1">add_circle</span>
+      <input ref="{{ quickRef }}" value="{{ tk.quick }}" onChange="{{ tk.onQuick }}" onKeyDown="{{ tk.onQuickKey }}" placeholder="Quick task: “Call Agro-Skhid tomorrow 15:00”" style="flex:1;min-width:0;height:28px;border:0;outline:none;font:inherit;font-size:13px;background:transparent;color:#1d1c1a">
+      <button onClick="{{ tk.onQuickAdd }}" style="height:28px;padding:0 12px;border:1px solid #3b54d1;border-radius:6px;background:#3b54d1;color:#fff;font:inherit;font-size:12.5px;font-weight:500;cursor:pointer">Add</button>
+    </div>
+    <sc-if value="{{ tk.hasPreview }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;padding-left:26px">
+        <sc-for list="{{ tk.preview }}" as="pv" hint-placeholder-count="4"><span style="display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px;border-radius:11px;background:{{ pv.bg }};color:{{ pv.fg }};font-size:11.5px;font-weight:500"><span style="font-family:'Material Symbols Outlined';font-size:13px;line-height:1">{{ pv.icon }}</span>{{ pv.label }}</span></sc-for>
+      </div>
+    </sc-if>
+  </div>
+  <sc-for list="{{ tk.groups }}" as="g" hint-placeholder-count="3">
+    <div style="background:#fff;border:1px solid #e8e6e1;border-radius:8px;overflow:hidden">
+      <div style="display:flex;align-items:center;gap:8px;padding:0 14px;height:36px;background:#fbfaf8;border-bottom:1px solid #efede9"><span style="font-weight:600;color:{{ g.color }}">{{ g.label }}</span><span style="font-size:11.5px;color:#8a867f;font-variant-numeric:tabular-nums">{{ g.count }}</span></div>
+      <sc-for list="{{ g.rows }}" as="t" hint-placeholder-count="3">
+        <div style="display:grid;grid-template-columns:18px 8px minmax(0,1fr) 150px 130px 150px 96px;gap:10px;align-items:center;padding:0 14px;min-height:42px;border-bottom:1px solid #f4f2ee" style-hover="background:#fcfbfa">
+          <button onClick="{{ t.onToggle }}" title="Done" style="width:16px;height:16px;border:1.5px solid {{ t.checkBorder }};border-radius:4px;background:{{ t.checkBg }};cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;color:#fff"><sc-if value="{{ t.done }}" hint-placeholder-val="{{ false }}"><span style="font-family:'Material Symbols Outlined';font-size:13px;line-height:1">check</span></sc-if></button>
+          <span title="{{ t.pl }}" style="width:7px;height:7px;border-radius:50%;background:{{ t.pc }}"></span>
+          <div style="display:flex;align-items:center;gap:8px;min-width:0"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:{{ t.titleColor }};text-decoration:{{ t.deco }}" title="{{ t.title }}">{{ t.title }}</span><sc-if value="{{ t.isAuto }}" hint-placeholder-val="{{ false }}"><span title="Created automatically by a rule" style="flex:none;display:inline-flex;align-items:center;gap:2px;font-size:10.5px;color:#8a867f;border:1px solid #e8e6e1;border-radius:4px;padding:0 5px;height:18px"><span style="font-family:'Material Symbols Outlined';font-size:12px;line-height:1">bolt</span>auto</span></sc-if></div>
+          <button onClick="{{ t.onClient }}" style="border:0;background:none;padding:0;font:inherit;font-size:12.5px;color:#55524c;cursor:pointer;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" style-hover="color:#3b54d1">{{ t.client }}</button>
+          <button onClick="{{ t.onDeal }}" style="border:0;background:none;padding:0;font:inherit;font-size:12px;color:#8a867f;cursor:pointer;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums" style-hover="color:#3b54d1">{{ t.deal }}</button>
+          <div style="display:flex;align-items:center;gap:6px;min-width:0">
+            <sc-if value="{{ t.notHead }}" hint-placeholder-val="{{ true }}"><span style="font-size:12px;color:{{ t.dueColor }};white-space:nowrap;font-variant-numeric:tabular-nums">{{ t.due }}</span></sc-if>
+            <sc-if value="{{ t.isHead }}" hint-placeholder-val="{{ false }}">
+              <select value="{{ t.who }}" onChange="{{ t.onReassign }}" title="Reassign" style="width:100%;height:26px;border:1px solid #e8e6e1;border-radius:5px;background:#fff;font:inherit;font-size:12px;color:#1d1c1a">
+                <sc-for list="{{ tk.managers }}" as="m" hint-placeholder-count="5"><option value="{{ m.id }}">{{ m.name }}</option></sc-for>
+              </select>
+            </sc-if>
+          </div>
+          <div style="display:flex;justify-content:flex-end;align-items:center;gap:6px">
+            <sc-if value="{{ t.isHead }}" hint-placeholder-val="{{ false }}"><span style="font-size:11.5px;color:{{ t.dueColor }};white-space:nowrap">{{ t.due }}</span></sc-if>
+            <sc-if value="{{ t.canSnooze }}" hint-placeholder-val="{{ false }}"><button onClick="{{ t.onSnooze }}" title="Snooze to tomorrow 09:00" style="height:24px;padding:0 7px;border:1px solid #e8e6e1;border-radius:5px;background:#fff;font:inherit;font-size:11.5px;color:#55524c;cursor:pointer;display:flex;align-items:center;gap:3px"><span style="font-family:'Material Symbols Outlined';font-size:13px;line-height:1">snooze</span>Tomorrow</button></sc-if>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </sc-for>
+  <sc-if value="{{ tk.isEmpty }}" hint-placeholder-val="{{ false }}"><div style="padding:48px;text-align:center;color:#8a867f">All done. New tasks will appear automatically.</div></sc-if>
+</div>
+</sc-if>
+  </main>
+</div>
+</div>
+<sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:10px;max-width:640px;padding:9px 10px 9px 14px;background:#1d1c1a;color:#f4f3ef;border-radius:9px;box-shadow:0 10px 30px rgba(28,27,26,.25);font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:12.5px">
+    <span style="font-family:'Material Symbols Outlined';font-size:18px;line-height:1;color:{{ toast.iconColor }}">{{ toast.icon }}</span>
+    <span style="text-wrap:pretty">{{ toast.text }}</span>
+    <sc-if value="{{ toast.hasUndo }}" hint-placeholder-val="{{ false }}"><button onClick="{{ toast.onUndo }}" style="height:26px;padding:0 10px;border:1px solid #4a4843;border-radius:6px;background:transparent;color:#fff;font:inherit;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap">Cancel</button></sc-if>
+    <button onClick="{{ toast.onClose }}" style="width:24px;height:24px;border:0;border-radius:5px;background:transparent;color:#9a968f;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0"><span style="font-family:'Material Symbols Outlined';font-size:16px;line-height:1">close</span></button>
+  </div>
+</sc-if>
+<sc-if value="{{ hasLost }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;z-index:50;background:rgba(28,27,26,.32);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:13px;color:#1d1c1a">
+    <div style="width:440px;background:#fff;border-radius:10px;box-shadow:0 20px 50px rgba(28,27,26,.25);display:flex;flex-direction:column">
+      <div style="padding:16px 18px 10px"><div style="font-size:15px;font-weight:600">Mark deal as lost</div><div style="font-size:12.5px;color:#6f6c67;margin-top:3px">{{ lostM.name }}</div></div>
+      <div style="padding:4px 18px 12px;display:flex;flex-direction:column;gap:6px">
+        <div style="font-size:12px;color:#6f6c67;margin-bottom:2px">Reason is required. It feeds the “Loss reasons” report.</div>
+        <sc-for list="{{ lostM.reasons }}" as="r" hint-placeholder-count="6">
+          <button onClick="{{ r.onClick }}" style="display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border:1px solid {{ r.border }};border-radius:7px;background:{{ r.bg }};font:inherit;font-size:13px;color:#1d1c1a;cursor:pointer;text-align:left">
+            <span style="width:14px;height:14px;border-radius:50%;border:1.5px solid {{ r.ring }};display:flex;align-items:center;justify-content:center"><span style="width:6px;height:6px;border-radius:50%;background:{{ r.dot }}"></span></span>{{ r.label }}
+          </button>
+        </sc-for>
+      </div>
+      <div style="padding:12px 18px;border-top:1px solid #efede9;display:flex;justify-content:flex-end;gap:8px">
+        <button onClick="{{ lostM.onCancel }}" style="height:30px;padding:0 12px;border:1px solid #e1dfd9;border-radius:6px;background:#fff;font:inherit;font-size:12.5px;cursor:pointer">Cancel</button>
+        <button onClick="{{ lostM.onConfirm }}" style="height:30px;padding:0 12px;border:0;border-radius:6px;background:{{ lostM.confirmBg }};color:#fff;font:inherit;font-size:12.5px;font-weight:500;cursor:{{ lostM.confirmCursor }}">Mark as lost</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;screenState&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;ready&quot;,&quot;loading&quot;,&quot;empty&quot;,&quot;error&quot;],&quot;default&quot;:&quot;ready&quot;,&quot;tsType&quot;:&quot;'ready'|'loading'|'empty'|'error'&quot;,&quot;section&quot;:&quot;Screen state&quot;},&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dashboard&quot;,&quot;clients&quot;,&quot;client&quot;,&quot;pipeline&quot;,&quot;deal&quot;,&quot;tasks&quot;],&quot;default&quot;:&quot;dashboard&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Navigation&quot;},&quot;showAuto&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Timeline&quot;}}">
+class Component extends DCLogic {
+  static STAGES = [
+    { k: 'new', l: 'New lead', sla: 1, p: 0.05, c: '#8a867f' },
+    { k: 'qual', l: 'Qualification', sla: 3, p: 0.1, c: '#7c5cd6' },
+    { k: 'docs', l: 'Document collection', sla: 7, p: 0.25, c: '#c98a12' },
+    { k: 'banks', l: 'Bank selection', sla: 2, p: 0.35, c: '#3b54d1' },
+    { k: 'submitted', l: 'Applications submitted', sla: 3, p: 0.5, c: '#2d7fc1' },
+    { k: 'decision', l: 'Bank decisions', sla: 10, p: 0.65, c: '#15857d' },
+    { k: 'signing', l: 'Signing & disbursement', sla: 7, p: 0.85, c: '#1d7a3e' },
+  ];
+  static TONE = { gray: ['#f0efeb', '#55524c'], blue: ['#e8edfc', '#2f47b0'], amber: ['#fcf1db', '#8a5a06'], green: ['#e2f3e7', '#1c6f39'], red: ['#fce8e5', '#b3261e'], violet: ['#efe9fb', '#5f3db0'], teal: ['#dff2f0', '#0f6a64'] };
+  static STONE = { new: 'gray', qual: 'violet', docs: 'amber', banks: 'blue', submitted: 'blue', decision: 'teal', signing: 'green', won: 'green', lost: 'red' };
+  static APP = { prep: ['Preparation', 'gray'], submitted: ['Submitted', 'blue'], review: ['Under review', 'violet'], extra: ['Extra docs requested', 'amber'], approved: ['Approved', 'green'], rejected: ['Rejected', 'red'], accepted: ['Client accepted', 'teal'], disbursed: ['Disbursed', 'green'] };
+  static LOST = ['Client changed mind', 'All banks declined', 'Documents not provided', 'Went to competitor', 'Unresponsive', 'Does not fit criteria'];
+  static BANKS = ['Dniprobank', 'Karpatskyi', 'Universal Capital', 'FinTrust', 'Sitibud'];
+  static FEE = 0.02;
+  static ICON = { call: 'call', email: 'mail', meeting: 'groups', messenger: 'chat', document: 'description', stage_change: 'swap_horiz', note: 'edit_note', task: 'bolt' };
+  static TYPE = { call: 'Call', email: 'Email', meeting: 'Meeting', messenger: 'Messenger', document: 'Document', stage_change: 'Stage change', note: 'Note', task: 'Auto task' };
+  static GROUPS = [['overdue', 'Overdue'], ['today', 'Today · Sep 29'], ['tomorrow', 'Tomorrow · Sep 30'], ['week', 'This week'], ['later', 'Later'], ['none', 'No date']];
+  static GSHORT = { overdue: 'Overdue', today: 'Today', tomorrow: 'Tomorrow', week: 'This week', later: 'Later', none: 'No date' };
+
+  static base() {
+    const K = (name, role, phone, email) => ({ name, role, phone, email: email || '' });
+    return {
+      users: [
+        { id: 'u1', name: 'Olena Koval', ini: 'OK', role: 'manager', target: 180000, paid: 112400 },
+        { id: 'u2', name: 'Ihor Bondar', ini: 'IB', role: 'manager', target: 150000, paid: 118000 },
+        { id: 'u3', name: 'Mariia Tkachenko', ini: 'MT', role: 'manager', target: 150000, paid: 136500 },
+        { id: 'u4', name: 'Dmytro Savchuk', ini: 'DS', role: 'manager', target: 120000, paid: 66000 },
+        { id: 'u5', name: 'Nataliia Lysenko', ini: 'NL', role: 'manager', target: 120000, paid: 84200 },
+        { id: 'h1', name: 'Andrii Melnyk', ini: 'AM', role: 'head', target: 720000, paid: 517100 },
+      ],
+      clients: [
+        { id: 'c1', name: 'Agro-Skhid LLC', short: 'Agro-Skhid', form: 'LLC', code: '40218763', industry: 'Grain farming', region: 'Kharkiv', turnover: 86e6, age: '9 years', source: 'Partner', owner: 'u1', status: 'Active', last: 'today', lastD: 0, tags: ['Agro'], contacts: [K('Serhii Lytvynenko', 'Director', '+380 67 412 58 03', 's.lytvynenko@agro-skhid.ua'), K('Tetiana Rudenko', 'Chief accountant', '+380 50 318 22 47', 'buh@agro-skhid.ua')], history: [{ year: '2024', product: 'Sowing season loan', amount: 4.8e6, fee: 96000 }] },
+        { id: 'c2', name: 'Hnatiuk Oksana P. (sole prop.)', short: 'Hnatiuk', form: 'Sole prop.', code: '3124509876', industry: 'Coffee shop “Zerno”', region: 'Lviv', turnover: 4.2e6, age: '3 years', source: 'Website', owner: 'u1', status: 'Active', last: 'yesterday', lastD: 1, tags: ['HoReCa'], contacts: [K('Oksana Hnatiuk', 'Owner', '+380 97 205 11 84', 'zerno.lviv@gmail.com')], history: [] },
+        { id: 'c3', name: 'Budmontazh-Invest LLC', short: 'Budmontazh-Invest', form: 'LLC', code: '39874512', industry: 'Construction', region: 'Kyiv', turnover: 142e6, age: '12 years', source: 'Referral', owner: 'u3', status: 'Active', last: '6 days ago', lastD: 6, tags: [], contacts: [K('Viktor Yaroshenko', 'CFO', '+380 44 390 71 20', 'fin@budmontazh.com.ua')], history: [] },
+        { id: 'c4', name: 'Poltava Mill LLC', short: 'Poltava Mill', form: 'LLC', code: '38451290', industry: 'Flour milling', region: 'Poltava', turnover: 61e6, age: '15 years', source: 'Website', owner: 'u1', status: 'Active', last: '2 days ago', lastD: 2, tags: [], contacts: [K('Halyna Shevchuk', 'Director', '+380 66 734 90 12', 'office@pmlyn.ua')], history: [] },
+        { id: 'c5', name: 'Poltava MILL LLC', short: 'Poltava MILL', form: 'LLC', code: '38451290', industry: 'Food industry', region: 'Poltava', turnover: 58e6, age: '15 years', source: 'Cold call', owner: 'u4', status: 'New', last: '5 days ago', lastD: 5, tags: [], contacts: [K('H. Shevchuk', 'Director', '+380 66 734 90 12')], history: [] },
+        { id: 'c6', name: 'Translogistic West LLC', short: 'Translogistic', form: 'LLC', code: '41527834', industry: 'Freight transport', region: 'Volyn', turnover: 54e6, age: '7 years', source: 'Repeat request', owner: 'u1', status: 'Active', last: '4 days ago', lastD: 4, tags: ['Repeat'], contacts: [K('Roman Klymchuk', 'Owner', '+380 67 118 40 55', 'r.klymchuk@translog.ua')], history: [{ year: '2025', product: 'Working capital loan', amount: 3.2e6, fee: 64000 }] },
+        { id: 'c7', name: 'Farmatsiia Podillia LLC', short: 'Farmatsiia Podillia', form: 'LLC', code: '37719025', industry: 'Pharmacy chain', region: 'Vinnytsia', turnover: 38e6, age: '11 years', source: 'Partner', owner: 'u2', status: 'Active', last: 'yesterday', lastD: 1, tags: [], contacts: [K('Liudmyla Palamarchuk', 'Director', '+380 43 255 09 61')], history: [] },
+        { id: 'c8', name: 'Kravets Dmytro I. (sole prop.)', short: 'Kravets', form: 'Sole prop.', code: '2987154320', industry: 'Appliance repair', region: 'Odesa', turnover: 2.8e6, age: '5 years', source: 'Website', owner: 'u1', status: 'New', last: 'today', lastD: 0, tags: [], contacts: [K('Dmytro Kravets', 'Owner', '+380 93 540 26 77')], history: [] },
+        { id: 'c9', name: 'Elektrosvit Dnipro LLC', short: 'Elektrosvit', form: 'LLC', code: '42103388', industry: 'Electrical wholesale', region: 'Dnipropetrovsk', turnover: 67e6, age: '8 years', source: 'Trade show', owner: 'u5', status: 'Active', last: '3 days ago', lastD: 3, tags: [], contacts: [K('Oleh Harmash', 'Commercial director', '+380 56 790 14 38')], history: [] },
+        { id: 'c10', name: 'Carpathian Spring LLC', short: 'Carpathian Spring', form: 'LLC', code: '36620147', industry: 'Beverage production', region: 'Zakarpattia', turnover: 29e6, age: '14 years', source: 'Referral', owner: 'u3', status: 'Active', last: '9 days ago', lastD: 9, tags: [], contacts: [K('Ivan Popovych', 'Director', '+380 31 264 88 02')], history: [] },
+        { id: 'c11', name: 'Melnychuk Iryna V. (sole prop.)', short: 'Melnychuk', form: 'Sole prop.', code: '3312008745', industry: 'Flower shops', region: 'Kyiv', turnover: 3.6e6, age: '4 years', source: 'Instagram', owner: 'u1', status: 'Active', last: '5 days ago', lastD: 5, tags: [], contacts: [K('Iryna Melnychuk', 'Owner', '+380 63 902 45 10')], history: [] },
+        { id: 'c12', name: 'Sfera Furniture Factory LLC', short: 'Sfera', form: 'LLC', code: '40987216', industry: 'Furniture manufacturing', region: 'Zhytomyr', turnover: 45e6, age: '10 years', source: 'Partner', owner: 'u4', status: 'Active', last: '2 days ago', lastD: 2, tags: [], contacts: [K('Andrii Kushnir', 'Director', '+380 41 247 31 90')], history: [] },
+        { id: 'c13', name: 'TechnoAgro South LLC', short: 'TechnoAgro South', form: 'LLC', code: '43055671', industry: 'Farm machinery sales', region: 'Mykolaiv', turnover: 112e6, age: '6 years', source: 'Trade show', owner: 'u2', status: 'Active', last: 'yesterday', lastD: 1, tags: ['Agro'], contacts: [K('Maksym Doroshenko', 'CFO', '+380 51 258 70 44')], history: [] },
+        { id: 'c14', name: 'Smart Pack Ukraine LLC', short: 'Smart Pack', form: 'LLC', code: '41876320', industry: 'Packaging manufacturing', region: 'Kyiv', turnover: 73e6, age: '9 years', source: 'Referral', owner: 'u1', status: 'Active', last: '3 days ago', lastD: 3, tags: [], contacts: [K('Yuliia Savchenko', 'CFO', '+380 44 581 36 29', 'finance@smartpack.ua')], history: [] },
+        { id: 'c15', name: 'Boiko Andrii M. (sole prop.)', short: 'Boiko', form: 'Sole prop.', code: '3045571829', industry: 'Car service', region: 'Khmelnytskyi', turnover: 5.1e6, age: '6 years', source: 'Website', owner: 'u1', status: 'Inactive', last: '42 days ago', lastD: 42, tags: [], contacts: [K('Andrii Boiko', 'Owner', '+380 98 160 72 35')], history: [] },
+      ],
+      funnel: [{ k: 'new', n: 9, sum: 14.2e6, avg: 0.8 }, { k: 'qual', n: 8, sum: 17.6e6, avg: 2.6 }, { k: 'docs', n: 11, sum: 31.4e6, avg: 8.4 }, { k: 'banks', n: 5, sum: 12.9e6, avg: 1.7 }, { k: 'submitted', n: 7, sum: 22.3e6, avg: 2.9 }, { k: 'decision', n: 8, sum: 29.8e6, avg: 11.3 }, { k: 'signing', n: 5, sum: 11e6, avg: 5.2 }],
+      banks: [{ bank: 'Dniprobank', apps: 24, appr: 0.42, days: 5.8, rate: 18.9, paid: 7 }, { bank: 'Karpatskyi', apps: 19, appr: 0.37, days: 7.4, rate: 19.6, paid: 5 }, { bank: 'Universal Capital', apps: 21, appr: 0.57, days: 4.1, rate: 17.8, paid: 9 }, { bank: 'FinTrust', apps: 15, appr: 0.53, days: 6.3, rate: 19.2, paid: 6 }, { bank: 'Sitibud', apps: 11, appr: 0.64, days: 3.6, rate: 20.4, paid: 5 }],
+      team: [{ id: 'u1', open: 18, overdue: 9, pipe: 41.2e6 }, { id: 'u2', open: 11, overdue: 2, pipe: 28.7e6 }, { id: 'u3', open: 9, overdue: 1, pipe: 34.1e6 }, { id: 'u4', open: 8, overdue: 0, pipe: 19.4e6 }, { id: 'u5', open: 7, overdue: 1, pipe: 15.8e6 }],
+      loss: [['All banks declined', 11], ['Documents not provided', 7], ['Went to competitor', 5], ['Unresponsive', 4], ['Client changed mind', 3], ['Does not fit criteria', 2]],
+    };
+  }
+
+  static fresh() {
+    const D = (id, c, product, purpose, amount, stage, days, owner, apps, created, doc) => ({ id, c, product, purpose, amount, stage, days, owner, apps, created, doc: doc || null });
+    const T = (id, title, c, deal, grp, due, auto, prio, who) => ({ id, title, c, deal, grp, due, auto, prio, who: who || 'u1', done: false });
+    const L = (id, c, day, time, type, author, text, auto, deal) => ({ id, c, day, time, type, author, text, auto, deal });
+    return {
+      deals: [
+        D('d1', 'c1', 'Loan', 'Working capital for winter sowing', 8.5e6, 'signing', 3, 'u1', 4, 'Sep 2'),
+        D('d2', 'c2', 'Overdraft', 'Equipment for a second location', 600000, 'docs', 5, 'u1', 0, 'Sep 14', 'Tax certificate expires in 4 days'),
+        D('d3', 'c3', 'Loan', 'Warehouse complex construction', 12e6, 'decision', 20, 'u3', 3, 'Aug 4'),
+        D('d4', 'c4', 'Loan', 'Milling line upgrade', 3.2e6, 'qual', 2, 'u1', 0, 'Sep 25'),
+        D('d5', 'c6', 'Leasing', '3 DAF XF tractor units', 7.4e6, 'submitted', 4, 'u1', 2, 'Sep 8'),
+        D('d6', 'c7', 'Factoring', 'Distributor payment terms', 2.5e6, 'banks', 1, 'u2', 0, 'Sep 17'),
+        D('d7', 'c8', 'Loan', 'Working capital top-up', 450000, 'new', 0, 'u1', 0, 'today'),
+        D('d8', 'c9', 'Overdraft', 'Seasonal cash gaps', 5e6, 'decision', 6, 'u5', 3, 'Sep 1'),
+        D('d9', 'c10', 'Leasing', 'PET bottling line', 3.9e6, 'docs', 9, 'u3', 0, 'Sep 3'),
+        D('d10', 'c11', 'Loan', 'Opening a third shop', 350000, 'qual', 5, 'u1', 0, 'Sep 19'),
+        D('d11', 'c12', 'Leasing', 'CNC machines', 6.2e6, 'submitted', 2, 'u4', 3, 'Sep 5'),
+        D('d12', 'c13', 'Loan', 'Seasonal machinery purchase', 9.8e6, 'docs', 3, 'u2', 0, 'Sep 20'),
+        D('d13', 'c14', 'Factoring', 'Retail chain receivables', 1.8e6, 'decision', 4, 'u1', 2, 'Sep 10'),
+        D('d14', 'c5', 'Loan', 'Working capital', 3.1e6, 'new', 1, 'u4', 0, 'yesterday'),
+        D('d15', 'c9', 'Leasing', 'Cars for sales reps', 1.4e6, 'banks', 3, 'u5', 0, 'Sep 11'),
+        D('d16', 'c7', 'Loan', 'Renovating four pharmacies', 4e6, 'signing', 2, 'u2', 2, 'Aug 21'),
+        D('d17', 'c14', 'Overdraft', 'Liquidity reserve', 900000, 'banks', 1, 'u1', 0, 'Sep 24'),
+      ],
+      apps: [
+        { id: 'a1', deal: 'd1', bank: 'Dniprobank', status: 'rejected', amount: 8.5e6, rate: null, term: null, sub: 'Sep 18', dec: 'Sep 22', reason: 'Insufficient collateral: machinery covers 96% (120%+ required)' },
+        { id: 'a2', deal: 'd1', bank: 'Karpatskyi', status: 'rejected', amount: 8.5e6, rate: null, term: null, sub: 'Sep 18', dec: 'Sep 24', reason: 'Seasonal revenue drop in Q1 of over 40%' },
+        { id: 'a3', deal: 'd1', bank: 'Universal Capital', status: 'accepted', amount: 8e6, rate: 17.9, term: 24, sub: 'Sep 23', dec: 'Sep 25' },
+        { id: 'a4', deal: 'd1', bank: 'FinTrust', status: 'approved', amount: 8.5e6, rate: 19.4, term: 18, sub: 'Sep 23', dec: 'Sep 28' },
+      ],
+      docs: {
+        d1: [
+          { t: 'State register extract', s: 'received' }, { t: 'Financial statements F1, F2 for 2025', s: 'received' }, { t: 'Financial statements H1 2026', s: 'received' },
+          { t: 'Tax clearance certificate', s: 'received', until: 'valid to Oct 18' }, { t: 'Bank statements, 12 mo.', s: 'received' },
+          { t: 'Collateral machinery documents', s: 'received' }, { t: 'Director’s passport and tax ID', s: 'received' }, { t: 'Land lease agreements', s: 'requested', until: 'requested Sep 25' },
+        ],
+        d2: [
+          { t: 'Passport and tax ID', s: 'received' }, { t: 'Single tax payer register extract', s: 'received' }, { t: 'Sole prop. tax return 2025', s: 'received' },
+          { t: 'Tax clearance certificate', s: 'received', warn: true, until: 'expires Oct 3 · in 4 days' },
+          { t: 'Sole prop. bank statement, 6 mo.', s: 'requested', until: 'requested Sep 24' }, { t: 'Premises lease agreement', s: 'not_requested' },
+        ],
+      },
+      tasks: [
+        T('t1', 'Remind client about bank statement', 'c2', 'd2', 'overdue', 'yesterday', true, 'high'),
+        T('t2', 'Check application status with FinTrust', 'c14', 'd13', 'overdue', '2 days ago', true, 'med'),
+        T('t3', 'Confirm actual 2025 turnover', 'c11', 'd10', 'overdue', '3 days ago', false, 'med'),
+        T('t4', 'Request 9-month financials', 'c4', 'd4', 'overdue', '2 days ago', true, 'med'),
+        T('t5', 'Send leasing offer comparison', 'c6', 'd5', 'overdue', '4 days ago', false, 'high'),
+        T('t6', 'Check application status with Karpatskyi', 'c6', 'd5', 'overdue', 'yesterday', true, 'high'),
+        T('t7', 'Get premises lease agreement', 'c2', 'd2', 'overdue', '5 days ago', true, 'low'),
+        T('t8', 'Schedule a meeting with the CFO', 'c14', 'd17', 'overdue', 'yesterday', false, 'med'),
+        T('t9', 'Update accounting contacts', 'c15', null, 'overdue', '6 days ago', false, 'low'),
+        T('t10', 'Confirm disbursement date with Universal Capital', 'c1', 'd1', 'today', '11:00', true, 'high'),
+        T('t11', 'Call — first contact with lead', 'c8', 'd7', 'today', '10:00', true, 'med'),
+        T('t12', 'Renew tax certificate (expires Oct 3)', 'c2', 'd2', 'today', 'by 18:00', true, 'high'),
+        T('t13', 'Meeting at client’s office', 'c14', 'd17', 'tomorrow', '15:00', false, 'med'),
+        T('t14', 'Get land lease agreements', 'c1', 'd1', 'tomorrow', '10:00', true, 'high'),
+        T('t15', 'Loan agreement signing', 'c1', 'd1', 'week', 'Thu, Oct 1 · 11:00', false, 'high'),
+        T('t16', 'Re-offer car leasing', 'c15', null, 'later', 'Oct 14', false, 'low'),
+        T('t17', 'Collect feedback after disbursement', 'c1', 'd1', 'none', '', false, 'low'),
+        T('t18', 'Escalation: Dniprobank decision on warehouse complex', 'c3', 'd3', 'overdue', '3 days ago', true, 'high', 'u3'),
+        T('t19', 'Check application status with Sitibud', 'c12', 'd11', 'today', '14:00', true, 'med', 'u4'),
+        T('t20', 'Send factoring agreement for approval', 'c7', 'd6', 'tomorrow', '12:00', false, 'med', 'u2'),
+        T('t21', 'Request bottling line documents', 'c10', 'd9', 'overdue', 'yesterday', true, 'med', 'u3'),
+      ],
+      timeline: [
+        L('l1', 'c1', 'Today', '09:52', 'task', 'System', 'Task “Confirm disbursement date with Universal Capital” created', true, 'd1'),
+        L('l2', 'c1', 'Today', '09:40', 'call', 'Olena Koval', 'Director confirmed signing on Thursday, Oct 1. Land lease agreements are missing — the accountant will send them tomorrow.', false, 'd1'),
+        L('l3', 'c1', 'Sep 28, Mon', '16:05', 'stage_change', 'System', 'Deal stage: “Bank decisions” → “Signing & disbursement”', true, 'd1'),
+        L('l4', 'c1', 'Sep 28, Mon', '15:48', 'messenger', 'Olena Koval', 'Viber: client chose the Universal Capital offer — 17.9%, 24 mo. Keeping FinTrust as backup.', false, 'd1'),
+        L('l5', 'c1', 'Sep 28, Mon', '11:20', 'document', 'System', 'FinTrust approved: 8,500,000 ₴ · 19.4% · 18 mo.', true, 'd1'),
+        L('l6', 'c1', 'Sep 25, Fri', '17:30', 'email', 'Olena Koval', 'Sent the client an offer comparison and payment schedules.', false, 'd1'),
+        L('l7', 'c1', 'Sep 25, Fri', '14:02', 'document', 'System', 'Universal Capital approved: 8,000,000 ₴ · 17.9% · 24 mo.', true, 'd1'),
+        L('l8', 'c1', 'Sep 24, Thu', '12:15', 'task', 'System', 'Karpatskyi rejection → task “Analyze rejection reason” created. Not tried yet: Sitibud', true, 'd1'),
+        L('l9', 'c1', 'Sep 24, Thu', '12:14', 'document', 'System', 'Karpatskyi rejected: seasonal revenue drop', true, 'd1'),
+        L('l10', 'c1', 'Sep 23, Wed', '10:30', 'meeting', 'Olena Koval', 'Meeting at the elevator: inspected collateral machinery, agreed to apply to Universal Capital and FinTrust.', false, 'd1'),
+        L('l11', 'c1', 'Sep 22, Tue', '09:05', 'document', 'System', 'Dniprobank rejected: insufficient collateral', true, 'd1'),
+      ],
+      edits: {}, merged: false,
+    };
+  }
+
+  constructor(props) {
+    super(props);
+    this.S = Component.base();
+    this.searchRef = React.createRef();
+    this.mainRef = React.createRef();
+    this.noteRef = React.createRef();
+    this.quickRef = React.createRef();
+    this.rows = [];
+    this.state = {
+      ...Component.fresh(), screen: props.startScreen || 'dashboard', role: 'manager', me: 'u1',
+      q: '', chips: [{ field: 'status', value: 'Active', label: 'Status: Active' }], saved: 'all', sort: 'last', cursor: 0, filterMenu: false,
+      clientId: 'c1', dealId: 'd1', tl: 'all', note: '', editKey: null,
+      view: 'kanban', drag: null, over: null, lost: null, lostReason: null, onlyStuck: false, ownerFilter: null,
+      pct: 2, quick: '', toast: null, menu: false, bannerHidden: false,
+    };
+  }
+  componentDidMount() { this.onKey = e => this.key(e); window.addEventListener('keydown', this.onKey); }
+  componentWillUnmount() { window.removeEventListener('keydown', this.onKey); clearTimeout(this.tt); }
+  componentDidUpdate(pp) { if (pp.startScreen !== this.props.startScreen && this.props.startScreen) this.setState({ screen: this.props.startScreen }); }
+  key(e) {
+    if (this.state.screen !== 'clients') return;
+    const tag = ((e.target && e.target.tagName) || '').toLowerCase();
+    const typing = tag === 'input' || tag === 'textarea' || tag === 'select';
+    if (e.key === '/' && !typing) { e.preventDefault(); this.searchRef.current && this.searchRef.current.focus(); return; }
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault(); const n = this.rows.length; if (!n) return;
+      this.setState(s => ({ cursor: Math.max(0, Math.min(n - 1, s.cursor + (e.key === 'ArrowDown' ? 1 : -1))) }));
+    }
+    if (e.key === 'Enter' && tag !== 'textarea') { const r = this.rows[this.state.cursor]; if (r) this.openClient(r.id); }
+    if (e.key === 'Escape' && tag === 'input') e.target.blur();
+  }
+
+  money(n) { return Math.round(n).toLocaleString('en-US').replace(/\s/g, '\u00a0') + '\u00a0₴'; }
+  mln(n) { return (n / 1e6).toLocaleString('en-US', { maximumFractionDigits: 1 }).replace(/\s/g, '\u00a0') + 'M\u00a0₴'; }
+  short(n) { return n >= 1e6 ? this.mln(n) : Math.round(n / 1000) + 'K\u00a0₴'; }
+  num(v) { return String(v); }
+  stage(k) { return Component.STAGES.find(s => s.k === k) || { k, l: k === 'won' ? 'Won' : 'Lost', sla: 0, p: k === 'won' ? 1 : 0, c: k === 'won' ? '#1d7a3e' : '#b3261e' }; }
+  tone(t) { const v = Component.TONE[t] || Component.TONE.gray; return { bg: v[0], fg: v[1] }; }
+  user(id) { return this.S.users.find(u => u.id === id); }
+  client(id) { return this.S.clients.find(c => c.id === id); }
+  ini(s) { return s.replace(/[«»]/g, '').split(/[\s-]+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase(); }
+  isStuck(d) { const s = this.stage(d.stage); return s.sla > 0 && d.days > s.sla; }
+  expected(d) { return d.amount * Component.FEE * this.stage(d.stage).p; }
+  scoped(list, key) { return this.state.role === 'head' ? list : list.filter(x => x[key] === this.state.me); }
+  now() { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
+  go(screen, extra) { this.setState({ screen, menu: false, filterMenu: false, ...(extra || {}) }); if (this.mainRef.current) this.mainRef.current.scrollTop = 0; }
+  openClient(id) { this.go('client', { clientId: id, editKey: null, note: '', tl: 'all' }); }
+  openDeal(id) { this.go('deal', { dealId: id }); }
+  snap() { const { deals, tasks, apps, timeline, edits, merged, docs } = this.state; return { deals, tasks, apps, timeline, edits, merged, docs }; }
+  toast(text, prev, kind) { clearTimeout(this.tt); this.setState({ toast: { text, prev: prev || null, kind: kind || 'ok' } }); this.tt = setTimeout(() => this.setState({ toast: null }), 6000); }
+  mkTask(title, c, deal, grp, due, who) { return { id: 't' + Date.now() + Math.round(Math.random() * 1e4), title, c, deal, grp, due, auto: true, prio: 'med', who, done: false }; }
+  seg(opts, cur, set) { return opts.map(([k, l]) => ({ label: l, onClick: () => set(k), bg: k === cur ? '#fff' : 'transparent', fg: k === cur ? '#1d1c1a' : '#6f6c67', shadow: k === cur ? '0 1px 2px rgba(28,27,26,.1)' : 'none' })); }
+
+  move(id, target) {
+    const st = this.state; const d = st.deals.find(x => x.id === id); this.setState({ drag: null, over: null });
+    if (!d || d.stage === target) return;
+    const idx = k => Component.STAGES.findIndex(s => s.k === k);
+    if (target === 'lost') { this.setState({ lost: id, lostReason: null }); return; }
+    if (target === 'won') {
+      if (!st.apps.some(a => a.deal === id && a.status === 'disbursed')) { this.toast('Can’t mark as Won: no application is Disbursed. A deal is won only after the money is paid out.', null, 'block'); return; }
+    } else if (idx(target) >= idx('submitted') && d.apps === 0) { this.toast(`Can’t move to “${this.stage(target).l}”: the deal has no bank applications`, null, 'block'); return; }
+    const prev = this.snap(); const c = this.client(d.c);
+    let tasks = st.tasks, msg = `“${c.short}” → “${this.stage(target).l}”`;
+    if (target === 'docs') { tasks = [this.mkTask('Request document package', c.id, id, 'today', 'by 18:00', d.owner), this.mkTask('Remind client about documents', c.id, id, 'week', 'Fri, Oct 2', d.owner), ...tasks]; msg += ' · 2 tasks created'; }
+    if (target === 'submitted') { tasks = [this.mkTask('Check application status with banks', c.id, id, 'week', 'Fri, Oct 2', d.owner), ...tasks]; msg += ' · 1 task created'; }
+    this.setState({ deals: st.deals.map(x => x.id === id ? { ...x, stage: target, days: 0 } : x), tasks });
+    this.toast(msg, prev);
+  }
+  confirmLost() {
+    const st = this.state; if (!st.lostReason) return; const prev = this.snap(); const d = st.deals.find(x => x.id === st.lost);
+    this.setState({ deals: st.deals.map(x => x.id === st.lost ? { ...x, stage: 'lost', days: 0, lostReason: st.lostReason } : x), lost: null, lostReason: null });
+    this.toast(`“${this.client(d.c).short}” → “Lost” · ${st.lostReason}`, prev);
+  }
+  disburse() {
+    const st = this.state; const prev = this.snap(); const d = st.deals.find(x => x.id === st.dealId);
+    this.setState({
+      apps: st.apps.map(a => a.deal === d.id && a.status === 'accepted' ? { ...a, status: 'disbursed', dec: 'Sep 29' } : a),
+      deals: st.deals.map(x => x.id === d.id ? { ...x, stage: 'won', days: 0 } : x),
+      tasks: [this.mkTask('Issue commission invoice', d.c, d.id, 'today', 'by 18:00', d.owner), ...st.tasks],
+      timeline: [{ id: 'l' + Date.now(), c: d.c, day: 'Today', time: this.now(), type: 'stage_change', author: 'System', text: 'Funds disbursed · deal won', auto: true, deal: d.id }, ...st.timeline],
+    });
+    this.toast('Funds disbursed · deal won · task “Issue commission invoice” created', prev);
+  }
+  toggleTask(id) {
+    const prev = this.snap(); const t = this.state.tasks.find(x => x.id === id);
+    this.setState({ tasks: this.state.tasks.map(x => x.id === id ? { ...x, done: !x.done } : x) });
+    if (!t.done) this.toast('Task completed', prev);
+  }
+  parseQuick(text) {
+    const low = text.toLowerCase(); let grp = 'none', due = '';
+    const tm = text.match(/(\d{1,2})[:.](\d{2})/); const time = tm ? tm[1].padStart(2, '0') + ':' + tm[2] : '';
+    if (/tomorrow/.test(low)) { grp = 'tomorrow'; due = time || '09:00'; }
+    else if (/today/.test(low)) { grp = 'today'; due = time || 'by 18:00'; }
+    else if (/friday|\bfri\b/.test(low)) { grp = 'week'; due = 'Fri, Oct 2' + (time ? ' · ' + time : ''); }
+    else if (/next week/.test(low)) { grp = 'later'; due = 'Oct 5' + (time ? ' · ' + time : ''); }
+    else if (time) { grp = 'today'; due = time; }
+    const c = this.S.clients.find(x => low.includes(x.short.toLowerCase()));
+    const type = /call|phone/.test(low) ? 'Call' : /meet/.test(low) ? 'Meeting' : /send|email|write/.test(low) ? 'Email' : 'Task';
+    const title = text.replace(/(tomorrow|today|on friday|friday|next week|\bat\s)/gi, '').replace(/(\d{1,2})[:.](\d{2})/, '').replace(/\s+/g, ' ').trim();
+    return { grp, due, c, type, title };
+  }
+  addQuick() {
+    const t = this.state.quick.trim(); if (!t) return; const p = this.parseQuick(t); const prev = this.snap();
+    const who = this.state.role === 'head' ? 'u1' : this.state.me;
+    const task = { id: 't' + Date.now(), title: p.title || t, c: p.c ? p.c.id : null, deal: null, grp: p.grp, due: p.due, auto: false, prio: 'med', who, done: false };
+    this.setState({ tasks: [task, ...this.state.tasks], quick: '' });
+    this.toast(`Task created · ${Component.GSHORT[p.grp]}${p.due ? ' ' + p.due : ''}`, prev);
+  }
+
+  renderVals() {
+    const st = this.state, S = this.S, head = st.role === 'head';
+    const me = head ? this.user('h1') : this.user(st.me);
+    const open = st.deals.filter(d => d.stage !== 'won' && d.stage !== 'lost');
+    const myDeals = this.scoped(open, 'owner');
+    const myTasks = this.scoped(st.tasks, 'who').filter(t => !t.done);
+    const overdue = myTasks.filter(t => t.grp === 'overdue');
+    const todayT = myTasks.filter(t => t.grp === 'today');
+    const clientsAll = S.clients.filter(c => !(st.merged && c.id === 'c5'));
+    const myClients = this.scoped(clientsAll, 'owner');
+    const x = { st, S, head, me, open, myDeals, myTasks, overdue, todayT, clientsAll, myClients };
+    const scr = st.screen, sState = this.props.screenState || 'ready', ready = sState === 'ready';
+    const cc = this.client(st.clientId);
+    const locked = scr === 'client' && !head && cc.owner !== st.me;
+    const show = {
+      dashM: ready && scr === 'dashboard' && !head, dashH: ready && scr === 'dashboard' && head,
+      clients: ready && scr === 'clients', client: ready && scr === 'client' && !locked, locked: ready && scr === 'client' && locked,
+      pipeline: ready && scr === 'pipeline', deal: ready && scr === 'deal', tasks: ready && scr === 'tasks', team: ready && scr === 'team',
+    };
+    return {
+      show, ...this.stateVals(sState, scr), ...this.chrome(x),
+      dm: this.dashM(x), dh: this.dashH(x), cl: this.clientsVals(x), c: this.clientVals(x), lk: { owner: this.user(cc.owner).name, name: cc.name, onBack: () => this.go('clients'), onRequest: () => this.toast(`Access request sent to ${this.user(cc.owner).name}`) },
+      p: this.pipeVals(x), dl: this.dealVals(x), tk: this.tasksVals(x),
+      searchRef: this.searchRef, mainRef: this.mainRef, noteRef: this.noteRef, quickRef: this.quickRef,
+    };
+  }
+
+  stateVals(s, scr) {
+    const E = {
+      dashboard: ['No dashboard data yet', 'Metrics appear once you add your first client and deal.', 'Add client'],
+      clients: ['No clients yet', 'Create a client manually or import from Excel. EDRPOU duplicates are checked automatically.', 'New client'],
+      client: ['No interactions yet', 'Add a note or log a call — history will appear here.', 'Add note'],
+      pipeline: ['Pipeline is empty', 'Deals are created from the client card. New leads land here automatically.', 'New deal'],
+      deal: ['Deal not found', 'It may have been deleted or handed to another manager.', 'To pipeline'],
+      tasks: ['All done', 'No new tasks. The system creates them automatically on stage changes and bank decisions.', 'Create task'],
+      team: ['Team is empty', 'Add managers to see workload.', 'Invite'],
+    }[scr] || ['', '', ''];
+    return {
+      notReady: s !== 'ready', isLoading: s === 'loading', isEmpty: s === 'empty', isError: s === 'error',
+      emptyTitle: E[0], emptyText: E[1], emptyCta: E[2], skel: [72, 54, 88, 40, 66, 80, 48, 70].map(w => ({ w: w + '%' })),
+      onRetry: () => this.toast('Reloading…'),
+    };
+  }
+
+  chrome(x) {
+    const { st, S, head, me, myDeals, myClients, overdue, todayT } = x;
+    const items = [['dashboard', 'space_dashboard', 'Dashboard'], ['clients', 'apartment', 'Clients'], ['pipeline', 'view_kanban', 'Pipeline'], ['tasks', 'task_alt', 'Tasks']];
+    if (head) items.push(['team', 'groups', 'Team']);
+    const act = { client: 'clients', deal: 'pipeline' }[st.screen] || st.screen;
+    const counts = { clients: myClients.length, pipeline: myDeals.length, tasks: overdue.length };
+    const nav = items.map(([k, icon, label]) => {
+      const on = act === k, n = counts[k];
+      return { icon, label, onClick: () => this.go(k, k === 'pipeline' ? { onlyStuck: false, ownerFilter: null } : {}), bg: on ? '#ecebe6' : 'transparent', fg: on ? '#1d1c1a' : '#55524c', weight: on ? 600 : 400, hasCount: n > 0, count: n, countBg: k === 'tasks' ? '#fce8e5' : '#f0efeb', countFg: k === 'tasks' ? '#b3261e' : '#6f6c67' };
+    });
+    const cc = this.client(st.clientId); const dd = st.deals.find(d => d.id === st.dealId);
+    const cr = {
+      dashboard: ['FundPath', head ? 'Team dashboard' : 'My dashboard', 'dashboard'], clients: ['Clients', head ? 'All clients' : 'My clients', 'clients'],
+      client: ['Clients', cc.name, 'clients'], pipeline: ['Deals', 'Pipeline', 'pipeline'], deal: ['Pipeline', this.client(dd.c).short + ' · ' + dd.product, 'pipeline'],
+      tasks: ['Tasks', head ? 'All tasks' : 'My tasks', 'tasks'], team: ['Team', 'Workload', 'team'],
+    }[st.screen];
+    const t = st.toast;
+    const lostDeal = st.lost ? st.deals.find(d => d.id === st.lost) : null;
+    const stale = myClients.filter(c => c.lastD >= 14).length;
+    return {
+      nav, crumbA: cr[0], crumbB: cr[1], onCrumbA: () => this.go(cr[2]),
+      sideSaved: [
+        { label: 'Deals over SLA', c: '#c4413a', n: myDeals.filter(d => this.isStuck(d)).length, onClick: () => this.go('pipeline', { onlyStuck: true, view: 'kanban' }) },
+        { label: 'No contact 14+ days', c: '#c98a12', n: stale, onClick: () => this.go('clients', { saved: 'stale', chips: [] }) },
+        { label: 'Repeat clients', c: '#15857d', n: myClients.filter(c => c.history.length).length, onClick: () => this.go('clients', { saved: 'repeat', chips: [] }) },
+      ],
+      roleOpts: this.seg([['manager', 'Manager'], ['head', 'Head']], st.role, r => this.setState({ role: r, cursor: 0, ownerFilter: null, screen: st.screen === 'team' && r === 'manager' ? 'dashboard' : st.screen })),
+      isManager: !head, managers: S.users.filter(u => u.role === 'manager').map(u => ({ id: u.id, name: u.name })), me: st.me,
+      onMe: e => this.setState({ me: e.target.value, cursor: 0 }),
+      meName: me.name, meIni: me.ini, meRoleLabel: head ? 'Head of department' : 'Credit manager',
+      bellCount: overdue.length + todayT.length, hasBell: overdue.length + todayT.length > 0, onBell: () => this.go('tasks'),
+      menuOpen: st.menu, toggleMenu: () => this.setState({ menu: !this.state.menu }),
+      onReset: () => { this.setState({ ...Component.fresh(), menu: false, q: '', cursor: 0 }); this.toast('Demo data reset to initial state'); },
+      hasToast: !!t, toast: t ? { text: t.text, icon: t.kind === 'block' ? 'block' : 'check_circle', iconColor: t.kind === 'block' ? '#ff9b8f' : '#86dfae', hasUndo: !!t.prev, onUndo: () => { const tt = this.state.toast; if (tt && tt.prev) this.setState({ ...tt.prev, toast: null }); }, onClose: () => this.setState({ toast: null }) } : {},
+      hasLost: !!lostDeal,
+      lostM: lostDeal ? {
+        name: this.client(lostDeal.c).name + ' · ' + lostDeal.product + ' · ' + this.money(lostDeal.amount),
+        reasons: Component.LOST.map(r => { const on = st.lostReason === r; return { label: r, onClick: () => this.setState({ lostReason: r }), border: on ? '#3b54d1' : '#e1dfd9', bg: on ? '#f1f3fd' : '#fff', dot: on ? '#3b54d1' : '#fff', ring: on ? '#3b54d1' : '#cfccc4' }; }),
+        confirmBg: st.lostReason ? '#b3261e' : '#e6c2bd', confirmCursor: st.lostReason ? 'pointer' : 'not-allowed',
+        onCancel: () => this.setState({ lost: null, lostReason: null }), onConfirm: () => this.confirmLost(),
+      } : {},
+    };
+  }
+
+  dashM(x) {
+    const { st, myDeals, overdue, todayT } = x; const u = this.user(st.me);
+    const sum = myDeals.reduce((a, d) => a + d.amount, 0);
+    const w = myDeals.reduce((a, d) => a + this.expected(d), 0);
+    const stuck = myDeals.filter(d => this.isStuck(d));
+    const stuckSum = stuck.reduce((a, d) => a + d.amount, 0);
+    const pct = Math.round(u.paid / u.target * 100);
+    const late = myDeals.filter(d => d.stage === 'signing' || d.stage === 'decision').reduce((a, d) => a + this.expected(d), 0);
+    const kpis = [
+      { label: 'Commission target · September', value: this.money(u.paid), color: '#1d1c1a', sub: `${pct}% of ${this.money(u.target)} · ${this.money(late)} in final stages`, hasBar: true, bar: pct + '%', decision: 'Are there enough late-stage deals to hit the target?', onClick: () => this.go('pipeline', { view: 'table', onlyStuck: false }) },
+      { label: 'Weighted commission forecast', value: this.money(w), color: '#1d1c1a', sub: `${myDeals.length} deals in progress · ${this.mln(sum)}`, hasBar: false, decision: 'Which stages to spend time on to grow the forecast', onClick: () => this.go('pipeline', { view: 'table', onlyStuck: false }) },
+      { label: 'Overdue tasks', value: String(overdue.length), color: overdue.length ? '#b3261e' : '#1d1c1a', sub: `+ ${todayT.length} due today`, hasBar: false, decision: 'Where to start the day and what to reschedule', onClick: () => this.go('tasks') },
+      { label: 'Deals over SLA', value: String(stuck.length), color: stuck.length ? '#b3261e' : '#1d1c1a', sub: `${this.mln(stuckSum)} at risk`, hasBar: false, decision: 'Which deals to step into today', onClick: () => this.go('pipeline', { onlyStuck: true, view: 'kanban' }) },
+    ];
+    const risks = [...stuck, ...myDeals.filter(d => d.doc && !this.isStuck(d))].map(d => {
+      const s = this.stage(d.stage), c = this.client(d.c), isS = this.isStuck(d), t = this.tone(Component.STONE[d.stage]);
+      return { name: c.name, product: d.product + ' · ' + d.purpose, amount: this.money(d.amount), stage: s.l, sbg: t.bg, sfg: t.fg, reason: isS ? `${d.days} d in stage · SLA ${s.sla} d` : d.doc, icon: isS ? 'timer' : 'description', rc: isS ? '#b3261e' : '#8a5a06', onClick: () => this.openDeal(d.id) };
+    });
+    const today = [...overdue, ...todayT].slice(0, 7).map(t => { const c = this.client(t.c); return { title: t.title, client: c ? c.short : '', due: t.due || '—', dueColor: t.grp === 'overdue' ? '#b3261e' : '#6f6c67', isAuto: t.auto, onToggle: () => this.toggleTask(t.id), onClient: () => c && this.openClient(c.id) }; });
+    const sums = Component.STAGES.map(s => myDeals.filter(d => d.stage === s.k).reduce((a, d) => a + d.amount, 0));
+    const max = Math.max(1, ...sums);
+    const funnel = Component.STAGES.map((s, i) => { const ds = myDeals.filter(d => d.stage === s.k); const v = sums[i]; const nS = ds.filter(d => this.isStuck(d)).length; return { label: s.l, n: ds.length, sum: v ? this.short(v) : '—', w: (v ? Math.max(v / max * 100, 3) : 0) + '%', c: s.c, hasStuck: nS > 0, stuck: `${nS} over SLA` }; });
+    return { greeting: `Good morning, ${u.name.split(' ')[0]}`, summary: `${overdue.length} overdue tasks · ${stuck.length} deals over SLA`, kpis, risks, hasRisks: risks.length > 0, noRisks: risks.length === 0, riskCount: risks.length, today, hasToday: today.length > 0, noToday: today.length === 0, funnel, goTasks: () => this.go('tasks'), goPipeline: () => this.go('pipeline', { onlyStuck: false }), onNewTask: () => this.go('tasks'), onNewLead: () => this.toast('Lead created · task “Call tomorrow at 10:00” added automatically') };
+  }
+
+  dashH(x) {
+    const { S, open } = x; const F = S.funnel; const hu = this.user('h1');
+    const pipe = F.reduce((a, f) => a + f.sum, 0), n = F.reduce((a, f) => a + f.n, 0);
+    const w = F.reduce((a, f) => a + f.sum * this.stage(f.k).p * Component.FEE, 0);
+    const pct = Math.round(hu.paid / hu.target * 100);
+    const stuck = open.filter(d => this.isStuck(d)); const stuckSum = stuck.reduce((a, d) => a + d.amount, 0);
+    const owners = new Set(stuck.map(d => d.owner)).size;
+    const kpis = [
+      { label: 'Team pipeline', value: this.mln(pipe), color: '#1d1c1a', sub: `${n} open deals`, hasBar: false, decision: 'Are there enough deals to hit next month’s target?', onClick: () => this.go('pipeline', { onlyStuck: false }) },
+      { label: 'Weighted commission', value: this.money(w), color: '#1d1c1a', sub: 'weighted by stage probability', hasBar: false, decision: 'Which revenue forecast to budget for', onClick: () => this.go('pipeline', { view: 'table', onlyStuck: false }) },
+      { label: 'Team target · September', value: this.money(hu.paid), color: '#1d1c1a', sub: `${pct}% of ${this.money(hu.target)}`, hasBar: true, bar: pct + '%', decision: 'Should focus be redistributed before month end?', onClick: () => this.go('team') },
+      { label: 'Deals over SLA', value: String(stuck.length), color: stuck.length ? '#b3261e' : '#1d1c1a', sub: `${this.mln(stuckSum)} · across ${owners} managers`, hasBar: false, decision: 'Where escalation or manager help is needed', onClick: () => this.go('pipeline', { onlyStuck: true, view: 'kanban' }) },
+    ];
+    const maxN = Math.max(...F.map(f => f.n));
+    const funnel = F.map(f => { const s = this.stage(f.k); const over = f.avg > s.sla; return { label: s.l, n: f.n, sum: this.mln(f.sum), w: (f.n / maxN * 100) + '%', c: s.c, avg: `${this.num(f.avg)} d`, sla: `SLA ${s.sla}`, avgColor: over ? '#b3261e' : '#6f6c67', avgWeight: over ? 600 : 400 }; });
+    const best = Math.max(...S.banks.map(b => b.appr));
+    const banks = S.banks.map(b => ({ bank: b.bank, apps: b.apps, appr: Math.round(b.appr * 100) + '%', w: (b.appr * 100) + '%', barC: b.appr === best ? '#1d7a3e' : '#a9b3e3', days: `${this.num(b.days)} d`, rate: `${this.num(b.rate)}%`, paid: b.paid, isBest: b.appr === best }));
+    const team = S.team.map(t => { const u = this.user(t.id); const over = t.open >= 15 || t.overdue >= 5; const pl = Math.round(u.paid / u.target * 100); return { name: u.name, ini: u.ini, open: t.open, overdue: t.overdue, pipe: this.mln(t.pipe), plan: pl + '%', planW: Math.min(100, pl) + '%', over, overdueColor: t.overdue >= 5 ? '#b3261e' : '#1d1c1a', openColor: t.open >= 15 ? '#b3261e' : '#1d1c1a', rowBg: over ? '#fffaf9' : '#fff', onClick: () => this.go('pipeline', { ownerFilter: t.id, onlyStuck: false }), onRebalance: () => this.toast(`Reassignment opened: ${u.name} → Dmytro Savchuk (8 deals)`) }; });
+    const lt = S.loss.reduce((a, l) => a + l[1], 0); const lmax = S.loss[0][1];
+    const loss = S.loss.map(([l, v]) => ({ label: l, v, pct: Math.round(v / lt * 100) + '%', w: (v / lmax * 100) + '%' }));
+    return { kpis, funnel, banks, team, loss, lossTotal: `${lt} deals lost this quarter`, pipeTotal: `${n} deals · ${this.mln(pipe)}` };
+  }
+
+  clientsVals(x) {
+    const { st, head, clientsAll, myClients, open } = x;
+    const codes = {}; clientsAll.forEach(c => { codes[c.code] = (codes[c.code] || 0) + 1; });
+    const savedF = { all: () => true, agro: c => c.tags.includes('Agro'), repeat: c => c.history.length > 0, stale: c => c.lastD >= 14 };
+    let list = myClients.filter(savedF[st.saved]);
+    st.chips.forEach(ch => { list = list.filter(c => c[ch.field] === ch.value); });
+    const q = st.q.trim().toLowerCase(), qd = q.replace(/\D/g, '');
+    if (q) list = list.filter(c => { const hay = (c.name + ' ' + c.code + ' ' + c.contacts.map(k => k.name).join(' ')).toLowerCase(); const dig = c.contacts.map(k => k.phone.replace(/\D/g, '')).join(' '); return hay.includes(q) || (qd.length >= 3 && dig.includes(qd)); });
+    const sorters = { last: (a, b) => a.lastD - b.lastD, turnover: (a, b) => b.turnover - a.turnover, name: (a, b) => a.short.localeCompare(b.short, 'en') };
+    list.sort(sorters[st.sort]); this.rows = list;
+    const cur = Math.min(st.cursor, list.length - 1);
+    const stT = { 'Active': 'green', 'New': 'blue', 'Inactive': 'gray' };
+    const rows = list.map((c, i) => {
+      const cd = open.filter(d => d.c === c.id); const sum = cd.reduce((a, d) => a + d.amount, 0); const o = this.user(c.owner); const t = this.tone(stT[c.status]);
+      return { id: c.id, name: c.name, ini: this.ini(c.short), form: c.form, code: c.code, industry: c.industry, region: c.region, turnover: this.short(c.turnover), deals: cd.length ? `${cd.length} · ${this.short(sum)}` : '—', owner: o.name, ownerIni: o.ini, contact: c.contacts[0].phone, last: c.last, lastColor: c.lastD >= 14 ? '#b3261e' : '#6f6c67', status: c.status, sbg: t.bg, sfg: t.fg, isDup: codes[c.code] > 1, bg: i === cur ? '#f1f3fd' : '#fff', onClick: () => this.openClient(c.id), onEnter: () => { if (this.state.cursor !== i) this.setState({ cursor: i }); } };
+    });
+    const pair = clientsAll.filter(c => codes[c.code] > 1); let dup = null;
+    if (pair.length >= 2) {
+      if (head) dup = { text: `Possible duplicate: “${pair[0].short}” and “${pair[1].short}” share EDRPOU ${pair[0].code}. Sources: ${pair[0].source.toLowerCase()} and ${pair[1].source.toLowerCase()}.`, action: 'Merge records', onAction: () => { const prev = this.snap(); this.setState({ merged: true }); this.toast('Records merged · history and deal moved to “Poltava Mill”', prev); }, secondary: 'Compare', onSecondary: () => this.openClient(pair[1].id) };
+      else { const mine = pair.find(c => c.owner === st.me), other = pair.find(c => c.owner !== st.me); if (mine && other) dup = { text: `EDRPOU ${mine.code} already exists: “${other.short}”, owner — ${this.user(other.owner).name}. Only the head can merge records.`, action: 'Request merge', onAction: () => this.toast('Merge request sent to head'), secondary: 'View', onSecondary: () => this.openClient(other.id) }; }
+    }
+    const saved = [['all', 'All'], ['agro', 'Agro'], ['repeat', 'Repeat'], ['stale', 'No contact 14+ days']].map(([k, l]) => { const on = st.saved === k; return { label: l, n: myClients.filter(savedF[k]).length, onClick: () => this.setState({ saved: k, cursor: 0 }), color: on ? '#1d1c1a' : '#6f6c67', border: on ? '#1d1c1a' : 'transparent', weight: on ? 500 : 400 }; });
+    const presets = [['form', 'LLC', 'Form: LLC'], ['form', 'Sole prop.', 'Form: Sole prop.'], ['status', 'Active', 'Status: Active'], ['status', 'New', 'Status: New'], ['region', 'Kyiv', 'Region: Kyiv']].filter(p => !st.chips.some(c => c.label === p[2])).map(([field, value, label]) => ({ label, onClick: () => this.setState({ chips: [...this.state.chips, { field, value, label }], filterMenu: false, cursor: 0 }) }));
+    return {
+      count: list.length, total: myClients.length, hasDup: !!dup, dup: dup || {}, saved, q: st.q, onQ: e => this.setState({ q: e.target.value, cursor: 0 }),
+      chips: st.chips.map(ch => ({ label: ch.label, onRemove: () => this.setState({ chips: this.state.chips.filter(c => c !== ch), cursor: 0 }) })), hasChips: st.chips.length > 0,
+      onClearChips: () => this.setState({ chips: [], q: '', saved: 'all' }), filterMenu: st.filterMenu, toggleFilter: () => this.setState({ filterMenu: !this.state.filterMenu }), presets,
+      onSaveFilter: () => this.toast('Filter saved to sidebar'), sort: st.sort, onSort: e => this.setState({ sort: e.target.value }),
+      rows, isEmpty: list.length === 0, notEmpty: list.length > 0, emptyText: q ? `Nothing found for “${st.q}”` : 'No clients match the filters',
+      showOwner: head, onNew: () => this.toast('EDRPOU check… no duplicates found. Client created'),
+    };
+  }
+
+  clientVals(x) {
+    const { st, head, open } = x; const c = this.client(st.clientId); const o = this.user(c.owner);
+    const stT = { 'Active': 'green', 'New': 'blue', 'Inactive': 'gray' };
+    const badges = [{ l: c.form, ...this.tone('gray') }, { l: c.status, ...this.tone(stT[c.status]) }, ...c.tags.map(t => ({ l: t, ...this.tone(t === 'Repeat' ? 'teal' : 'violet') }))];
+    const base = [['code', c.form === 'Sole prop.' ? 'Tax ID' : 'EDRPOU', c.code, 1], ['industry', 'Industry', c.industry], ['region', 'Region', c.region === 'Kyiv' ? 'Kyiv City' : c.region + ' Oblast'], ['turnover', 'Annual turnover', this.money(c.turnover)], ['age', 'Business age', c.age], ['source', 'Lead source', c.source]];
+    const req = base.map(([k, l, v, mono]) => {
+      const key = c.id + ':' + k; const val = st.edits[key] ?? v; const editing = st.editKey === key;
+      return { label: l, value: val, font: mono ? "'IBM Plex Mono',monospace" : 'inherit', editing, notEditing: !editing, onEdit: () => this.setState({ editKey: key }), onChange: e => this.setState({ edits: { ...this.state.edits, [key]: e.target.value } }), onBlur: () => this.setState({ editKey: null }), onKey: e => { if (e.key === 'Enter' || e.key === 'Escape') e.target.blur(); } };
+    });
+    const entries = st.timeline.filter(e => e.c === c.id).filter(e => st.tl === 'all' || (st.tl === 'auto' ? e.auto : !e.auto)).filter(e => this.props.showAuto !== false || !e.auto);
+    const groups = []; entries.forEach(e => { let g = groups.find(g => g.day === e.day); if (!g) { g = { day: e.day, items: [] }; groups.push(g); } g.items.push({ ...e, isAuto: e.auto, isManual: !e.auto, icon: Component.ICON[e.type], typeLabel: Component.TYPE[e.type] }); });
+    const deals = open.filter(d => d.c === c.id).map(d => { const t = this.tone(Component.STONE[d.stage]); return { product: d.product, purpose: d.purpose, amount: this.money(d.amount), stage: this.stage(d.stage).l, sbg: t.bg, sfg: t.fg, stuck: this.isStuck(d), onClick: () => this.openDeal(d.id) }; });
+    const tasks = st.tasks.filter(t => t.c === c.id && !t.done).map(t => ({ title: t.title, due: Component.GSHORT[t.grp] + (t.due ? ' · ' + t.due : ''), dueColor: t.grp === 'overdue' ? '#b3261e' : '#6f6c67', isAuto: t.auto, onToggle: () => this.toggleTask(t.id) }));
+    const ltv = c.history.reduce((a, h) => a + h.fee, 0);
+    const pot = open.filter(d => d.c === c.id).reduce((a, d) => a + d.amount * Component.FEE, 0);
+    const firstT = st.tasks.find(t => t.c === c.id && !t.done && t.grp !== 'none');
+    const next = c.id === 'c1' ? { title: 'Loan agreement signing', when: 'Thu, October 1 · 11:00', where: 'Universal Capital · Kharkiv, 12 Sumska St.', has: true, none: false, cta: 'Open deal', onCta: () => this.openDeal('d1') }
+      : firstT ? { title: firstT.title, when: Component.GSHORT[firstT.grp] + (firstT.due ? ' · ' + firstT.due : ''), where: 'Task created ' + (firstT.auto ? 'automatically' : 'manually'), has: true, none: false, cta: 'Go to tasks', onCta: () => this.go('tasks') }
+      : { has: false, none: true };
+    const addEntry = (type, text) => { const prev = this.snap(); this.setState({ timeline: [{ id: 'l' + Date.now(), c: c.id, day: 'Today', time: this.now(), type, author: this.user(this.state.role === 'head' ? 'h1' : this.state.me).name, text, auto: false }, ...this.state.timeline], note: '' }); this.toast(type === 'note' ? 'Note added' : 'Call logged to history', prev); };
+    return {
+      name: c.name, ini: this.ini(c.short), badges, meta: `${c.form === 'Sole prop.' ? 'Tax ID' : 'EDRPOU'} ${c.code} · ${c.industry} · ${c.region === 'Kyiv' ? 'Kyiv City' : c.region + ' Oblast'}`, owner: o.name, ownerIni: o.ini,
+      req, contacts: c.contacts, deals, hasDeals: deals.length > 0, noDeals: deals.length === 0, tasks, hasTasks: tasks.length > 0, noTasks: tasks.length === 0,
+      groups, hasTimeline: groups.length > 0, noTimeline: groups.length === 0,
+      tlOpts: this.seg([['all', 'All'], ['manual', 'Manual'], ['auto', 'Automatic']], st.tl, v => this.setState({ tl: v })),
+      note: st.note, onNote: e => this.setState({ note: e.target.value }), canSave: st.note.trim().length > 0, saveBg: st.note.trim() ? '#3b54d1' : '#c5cdf0',
+      onSaveNote: () => { if (this.state.note.trim()) addEntry('note', this.state.note.trim()); }, onNoteKey: e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && this.state.note.trim()) addEntry('note', this.state.note.trim()); },
+      ltv: this.money(ltv), pot: this.money(pot), ltvRows: c.history.map(h => ({ label: `${h.year} · ${h.product}`, amount: this.money(h.amount), fee: this.money(h.fee) })), hasLtv: c.history.length > 0, noLtv: c.history.length === 0,
+      next, onBack: () => this.go('clients'),
+      onCall: () => addEntry('call', `Outgoing call: ${c.contacts[0].name}, ${c.contacts[0].phone}. Add a note with the outcome.`),
+      onMail: () => this.toast(`Email draft to ${c.contacts[0].email || c.contacts[0].name}`),
+      onNoteFocus: () => this.noteRef.current && this.noteRef.current.focus(),
+      onTask: () => this.go('tasks', { quick: `Call ${c.short} tomorrow 10:00` }),
+      onNewDeal: () => this.toast(`Draft deal for “${c.short}” created at “New lead”`),
+    };
+  }
+
+  pipeVals(x) {
+    const { st, head, myDeals } = x;
+    let ds = myDeals; if (st.onlyStuck) ds = ds.filter(d => this.isStuck(d)); if (head && st.ownerFilter) ds = ds.filter(d => d.owner === st.ownerFilter);
+    const card = d => {
+      const c = this.client(d.c), s = this.stage(d.stage), stuck = this.isStuck(d), o = this.user(d.owner);
+      return { id: d.id, name: c.name, product: d.product, purpose: d.purpose, amount: this.money(d.amount), sla: stuck ? `${d.days} d · SLA ${s.sla}` : `${d.days} of ${s.sla} d`, stuck, notStuck: !stuck, border: stuck ? '#e8a79f' : '#e8e6e1', bg: stuck ? '#fffbfa' : '#fff', slaColor: stuck ? '#b3261e' : '#8a867f', slaWeight: stuck ? 600 : 400, hasDoc: !!d.doc, doc: d.doc, hasApps: d.apps > 0, apps: `${d.apps} bank${d.apps === 1 ? '' : 's'}`, ownerIni: o.ini, ownerName: o.name, opacity: st.drag === d.id ? 0.4 : 1,
+        onDragStart: e => { e.dataTransfer.setData('text/plain', d.id); e.dataTransfer.effectAllowed = 'move'; this.setState({ drag: d.id }); }, onDragEnd: () => this.setState({ drag: null, over: null }), onClick: () => this.openDeal(d.id) };
+    };
+    const zone = k => ({ onDragOver: e => { e.preventDefault(); if (this.state.over !== k) this.setState({ over: k }); }, onDrop: e => { e.preventDefault(); this.move(e.dataTransfer.getData('text/plain') || this.state.drag, k); } });
+    const cols = Component.STAGES.map(s => { const list = ds.filter(d => d.stage === s.k); const sum = list.reduce((a, d) => a + d.amount, 0); const ov = st.over === s.k; return { label: s.l, dot: s.c, count: list.length, sum: sum ? this.short(sum) : '—', sla: `SLA ${s.sla} d`, cards: list.map(card), isEmpty: list.length === 0, bg: ov ? '#eef1fc' : '#f3f2ee', border: ov ? '#3b54d1' : 'transparent', ...zone(s.k) }; });
+    const zones = [['won', 'check_circle', 'Won', 'only after disbursement', '#1d7a3e', '#e9f6ed'], ['lost', 'cancel', 'Lost', 'reason required', '#b3261e', '#fdeeec']].map(([k, icon, l, hint, c, hbg]) => ({ icon, label: l, hint, color: c, bg: st.over === k ? hbg : '#fff', border: st.over === k ? c : '#dcd9d2', ...zone(k) }));
+    const rows = ds.slice().sort((a, b) => Component.STAGES.findIndex(s => s.k === b.stage) - Component.STAGES.findIndex(s => s.k === a.stage)).map(d => { const c = this.client(d.c), s = this.stage(d.stage), t = this.tone(Component.STONE[d.stage]), stuck = this.isStuck(d); return { name: c.name, product: d.product, stage: s.l, sbg: t.bg, sfg: t.fg, amount: this.money(d.amount), days: `${d.days} / ${s.sla} d`, dayColor: stuck ? '#b3261e' : '#1d1c1a', stuck, prob: Math.round(s.p * 100) + '%', exp: this.money(this.expected(d)), owner: this.user(d.owner).name, onClick: () => this.openDeal(d.id) }; });
+    const sum = ds.reduce((a, d) => a + d.amount, 0), w = ds.reduce((a, d) => a + this.expected(d), 0);
+    const of = st.ownerFilter ? this.user(st.ownerFilter) : null;
+    return {
+      sub: `${ds.length} deals · ${this.mln(sum)} · weighted commission ${this.money(w)}`, cols, zones, rows, isKanban: st.view === 'kanban', isTable: st.view === 'table',
+      viewOpts: this.seg([['kanban', 'Kanban'], ['table', 'Table']], st.view, v => this.setState({ view: v })),
+      stuckBg: st.onlyStuck ? '#fce8e5' : '#fff', stuckFg: st.onlyStuck ? '#b3261e' : '#55524c', stuckBorder: st.onlyStuck ? '#f0c3bd' : '#e1dfd9', onStuck: () => this.setState({ onlyStuck: !this.state.onlyStuck }),
+      hasOwner: !!of, ownerChip: of ? 'Manager: ' + of.name : '', onOwnerClear: () => this.setState({ ownerFilter: null }),
+      onLeave: () => this.setState({ over: null }), isEmpty: ds.length === 0,
+    };
+  }
+
+  dealVals(x) {
+    const { st, head } = x; const d = st.deals.find(v => v.id === st.dealId); const c = this.client(d.c); const s = this.stage(d.stage); const o = this.user(d.owner);
+    const cur = Component.STAGES.findIndex(v => v.k === d.stage); const won = d.stage === 'won', lostS = d.stage === 'lost';
+    const steps = Component.STAGES.map((v, i) => { const done = won || i < cur, now = !won && !lostS && i === cur; return { label: v.l, n: String(i + 1), done, notDone: !done, bg: done ? '#1d7a3e' : now ? '#3b54d1' : '#fff', fg: done || now ? '#fff' : '#9a968f', border: done ? '#1d7a3e' : now ? '#3b54d1' : '#d6d3cc', lc: done ? '#1d7a3e' : '#e1dfd9', labelColor: now ? '#1d1c1a' : done ? '#55524c' : '#9a968f', weight: now ? 600 : 400, sub: now ? `${d.days} of ${v.sla} d` : done ? '' : `SLA ${v.sla} d`, subColor: now && this.isStuck(d) ? '#b3261e' : '#8a867f', notLast: i < 6 }; });
+    const apps = st.apps.filter(a => a.deal === d.id);
+    const appRows = apps.map(a => { const [l, t] = Component.APP[a.status]; const tn = this.tone(t); return { bank: a.bank, ini: this.ini(a.bank), status: l, sbg: tn.bg, sfg: tn.fg, amount: this.money(a.amount), rate: a.rate ? this.num(a.rate) + '%' : '—', term: a.term ? a.term + ' mo.' : '—', sub: a.sub || '—', dec: a.dec || '—', hasReason: !!a.reason, reason: a.reason, rowOp: a.status === 'rejected' ? 0.78 : 1 }; });
+    const offersA = apps.filter(a => a.rate && ['approved', 'accepted', 'disbursed'].includes(a.status)); const best = Math.min(...offersA.map(a => a.rate));
+    const offers = offersA.map(a => { const r = a.rate / 1200, n = a.term; const m = a.amount * r / (1 - Math.pow(1 + r, -n)); const isBest = a.rate === best, chosen = a.status === 'accepted' || a.status === 'disbursed'; return { bank: a.bank, rate: this.num(a.rate) + '%', term: n + ' mo.', amount: this.money(a.amount), monthly: this.money(m), over: this.money(m * n - a.amount), isBest, chosen, border: isBest ? '#1d7a3e' : '#e8e6e1', bg: isBest ? '#f6fbf7' : '#fff' }; });
+    const rejected = apps.filter(a => a.status === 'rejected');
+    const tried = apps.map(a => a.bank); const untried = Component.BANKS.filter(b => !tried.includes(b));
+    const bs = untried.map(b => this.S.banks.find(v => v.bank === b));
+    const accepted = apps.find(a => a.status === 'accepted' || a.status === 'disbursed');
+    const docsL = (st.docs[d.id] || []).map((v, i) => { const m = v.warn ? ['Expiring', 'amber', 'warning'] : { received: ['Received', 'green', 'check_circle'], requested: ['Requested', 'blue', 'schedule'], not_requested: ['Not requested', 'gray', 'radio_button_unchecked'], expired: ['Overdue', 'red', 'error'] }[v.s]; const t = this.tone(m[1]); return { t: v.t, label: m[0], bg: t.bg, fg: t.fg, icon: m[2], ic: t.fg, until: v.until || '', canRequest: v.s === 'not_requested', canRenew: !!v.warn, onRequest: () => { const prev = this.snap(); const list = this.state.docs[d.id].map((z, j) => j === i ? { ...z, s: 'requested', until: 'requested today' } : z); this.setState({ docs: { ...this.state.docs, [d.id]: list } }); this.toast('Request sent to client · reminder in 3 days', prev); }, onRenew: () => { const prev = this.snap(); const list = this.state.docs[d.id].map((z, j) => j === i ? { ...z, s: 'requested', warn: false, until: 'renewal requested today' } : z); this.setState({ docs: { ...this.state.docs, [d.id]: list } }); this.toast('Certificate renewal request sent', prev); } }; });
+    const got = (st.docs[d.id] || []).filter(v => v.s === 'received' && !v.warn).length, all = docsL.length;
+    const baseAmt = accepted ? accepted.amount : d.amount; const fee = baseAmt * st.pct / 100; const p = won ? 1 : s.p;
+    const tasks = st.tasks.filter(t => t.deal === d.id && !t.done).map(t => ({ title: t.title, due: Component.GSHORT[t.grp] + (t.due ? ' · ' + t.due : ''), dueColor: t.grp === 'overdue' ? '#b3261e' : '#6f6c67', isAuto: t.auto, onToggle: () => this.toggleTask(t.id) }));
+    const tl = st.timeline.filter(e => e.deal === d.id).slice(0, 6).map(e => ({ ...e, icon: Component.ICON[e.type], color: e.auto ? '#9a968f' : '#3b54d1' }));
+    const st2 = this.tone(Component.STONE[d.stage]);
+    return {
+      name: c.name, title: `${d.product} · ${d.purpose}`, amount: this.money(d.amount), stage: s.l, sbg: st2.bg, sfg: st2.fg, owner: o.name, ownerIni: o.ini, created: d.created, stuck: this.isStuck(d),
+      steps, apps: appRows, hasApps: apps.length > 0, noApps: apps.length === 0, offers, hasOffers: offers.length > 0, offerCount: offers.length,
+      hasSuggest: rejected.length > 0 && untried.length > 0,
+      suggest: bs.length ? `${rejected.length} banks declined. Not tried yet: ${bs.map(b => `${b.bank} — approves ${Math.round(b.appr * 100)}% of applications, decides in ${this.num(b.days)} d`).join('; ')}.` : '',
+      onBackup: () => { const prev = this.snap(); this.setState({ apps: [...this.state.apps, { id: 'a' + Date.now(), deal: d.id, bank: untried[0], status: 'prep', amount: baseAmt, rate: null, term: null, sub: null, dec: null }] }); this.toast(`Backup application to ${untried[0]} created as “Preparation”`, prev); },
+      proposal: d.stage === 'signing' && !!accepted && accepted.status === 'accepted', proposalText: accepted ? `${accepted.bank} approved ${this.money(accepted.amount)}. Once funds are disbursed the deal becomes Won automatically.` : '',
+      onDisburse: () => this.disburse(), isWon: won,
+      docs: docsL, hasDocs: all > 0, noDocs: all === 0, docProg: `${got} of ${all}`, docW: all ? Math.round(got / all * 100) + '%' : '0%', docPct: all ? Math.round(got / all * 100) + '%' : '',
+      baseAmt: this.money(baseAmt), baseNote: accepted ? `amount approved by ${accepted.bank}` : 'requested amount', pct: st.pct, pctLabel: st.pct.toFixed(1) + '%', onPct: e => this.setState({ pct: parseFloat(e.target.value) }),
+      fee: this.money(fee), weighted: this.money(fee * p), prob: Math.round(p * 100) + '%',
+      tasks, hasTasks: tasks.length > 0, noTasks: tasks.length === 0, tl, hasTl: tl.length > 0,
+      onBack: () => this.go('pipeline'), onClient: () => this.openClient(c.id), onLost: () => this.setState({ lost: d.id, lostReason: null }), canLose: !won && !lostS,
+      recBanks: 'Universal Capital, Sitibud', onAddApp: () => this.toast('Pick a bank — recommended ones are on top for this profile'),
+      canReassign: head,
+    };
+  }
+
+  tasksVals(x) {
+    const { st, head, S, overdue } = x;
+    const all = this.scoped(st.tasks, 'who');
+    const prio = { high: ['#c4413a', 'High priority'], med: ['#d49b2a', 'Medium priority'], low: ['#c9c5bd', 'Low priority'] };
+    const row = t => { const c = this.client(t.c); const d = t.deal ? st.deals.find(v => v.id === t.deal) : null; const u = this.user(t.who); return {
+      title: t.title, client: c ? c.short : '', hasClient: !!c, onClient: () => c && this.openClient(c.id), deal: d ? d.product + ' · ' + this.short(d.amount) : '', hasDeal: !!d, onDeal: () => d && this.openDeal(d.id),
+      isAuto: t.auto, due: t.due || '—', dueColor: t.grp === 'overdue' && !t.done ? '#b3261e' : '#6f6c67', pc: prio[t.prio][0], pl: prio[t.prio][1],
+      done: t.done, checkBg: t.done ? '#3b54d1' : '#fff', checkBorder: t.done ? '#3b54d1' : '#cfccc4', titleColor: t.done ? '#9a968f' : '#1d1c1a', deco: t.done ? 'line-through' : 'none',
+      onToggle: () => this.toggleTask(t.id), canSnooze: !t.done && t.grp !== 'tomorrow' && t.grp !== 'later',
+      onSnooze: () => { const prev = this.snap(); this.setState({ tasks: this.state.tasks.map(v => v.id === t.id ? { ...v, grp: 'tomorrow', due: '09:00' } : v) }); this.toast('Snoozed to tomorrow, 09:00', prev); },
+      ini: u.ini, owner: u.name, who: t.who, isHead: head, notHead: !head,
+      onReassign: e => { const prev = this.snap(); const nu = this.user(e.target.value); this.setState({ tasks: this.state.tasks.map(v => v.id === t.id ? { ...v, who: e.target.value } : v) }); this.toast(`Task reassigned to ${nu.name}`, prev); },
+    }; };
+    const groups = Component.GROUPS.map(([k, l]) => { const ts = all.filter(t => t.grp === k); return { label: l, count: ts.filter(t => !t.done).length, color: k === 'overdue' ? '#b3261e' : '#1d1c1a', has: ts.length > 0, rows: ts.map(row) }; }).filter(g => g.has);
+    const ages = overdue.map(t => /yesterday/.test(t.due) ? 1 : parseInt(t.due, 10) || 1); const oldest = Math.max(0, ...ages);
+    const q = st.quick.trim(); const pq = q ? this.parseQuick(q) : null;
+    const preview = pq ? [
+      { icon: 'category', label: pq.type, ok: true }, { icon: 'event', label: pq.grp === 'none' ? 'No date' : Component.GSHORT[pq.grp] + (pq.due ? ' · ' + pq.due : ''), ok: pq.grp !== 'none' },
+      { icon: 'apartment', label: pq.c ? pq.c.short : 'Client not recognized', ok: !!pq.c }, { icon: 'person', label: head ? 'Olena Koval' : this.user(st.me).name, ok: true },
+    ].map(p => ({ ...p, bg: p.ok ? '#f1f3fd' : '#f4f3ef', fg: p.ok ? '#2f47b0' : '#8a867f' })) : [];
+    return {
+      groups, isEmpty: groups.length === 0, hasBanner: overdue.length > 0 && !st.bannerHidden, banner: `${overdue.length} overdue tasks. The oldest has waited ${oldest} ${oldest === 1 ? 'day' : 'days'}.`,
+      onHideBanner: () => this.setState({ bannerHidden: true }), onShowOverdue: () => { if (this.mainRef.current) this.mainRef.current.scrollTop = 0; },
+      quick: st.quick, onQuick: e => this.setState({ quick: e.target.value }), onQuickKey: e => { if (e.key === 'Enter') this.addQuick(); }, onQuickAdd: () => this.addQuick(),
+      hasPreview: preview.length > 0, preview, managers: S.users.filter(u => u.role === 'manager').map(u => ({ id: u.id, name: u.name })), isHead: head,
+      openCount: all.filter(t => !t.done).length, autoCount: all.filter(t => t.auto && !t.done).length,
+    };
+  }
+}
+</script>
+</body>
+</html>
