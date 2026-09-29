@@ -7,7 +7,8 @@ import { PipelineScreen } from '@/src/components/pipeline/PipelineScreen';
 /** Remounts when a sidebar filter or a dashboard owner link changes the query. */
 function PipelineRoute() {
   const params = useSearchParams();
-  return <PipelineScreen key={`${params.get('filter')}:${params.get('owner')}`} />;
+  const key = ['filter', 'owner', 'view', 'stage'].map((k) => params.get(k)).join(':');
+  return <PipelineScreen key={key} />;
 }
 
 export default function PipelinePage() {

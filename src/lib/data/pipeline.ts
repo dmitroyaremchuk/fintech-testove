@@ -83,6 +83,8 @@ export interface PipelineFilters {
   product: Product | null;
   amount: AmountRange;
   onlyStuck: boolean;
+  /** One stage only (dashboard funnel links). */
+  stage: OpenStageKey | null;
 }
 
 export const NO_FILTERS: PipelineFilters = {
@@ -90,10 +92,17 @@ export const NO_FILTERS: PipelineFilters = {
   product: null,
   amount: 'any',
   onlyStuck: false,
+  stage: null,
 };
 
 export function isFiltered(f: PipelineFilters): boolean {
-  return f.ownerId !== null || f.product !== null || f.amount !== 'any' || f.onlyStuck;
+  return (
+    f.ownerId !== null ||
+    f.product !== null ||
+    f.amount !== 'any' ||
+    f.onlyStuck ||
+    f.stage !== null
+  );
 }
 
 export function filterCards(cards: readonly DealCard[], f: PipelineFilters): DealCard[] {
@@ -104,7 +113,8 @@ export function filterCards(cards: readonly DealCard[], f: PipelineFilters): Dea
       (!f.product || c.deal.product === f.product) &&
       c.deal.requestedAmount >= range.min &&
       c.deal.requestedAmount < range.max &&
-      (!f.onlyStuck || c.stuck),
+      (!f.onlyStuck || c.stuck) &&
+      (!f.stage || c.deal.stage === f.stage),
   );
 }
 

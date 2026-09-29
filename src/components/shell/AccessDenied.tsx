@@ -7,13 +7,22 @@ import { Button, useToast } from '@/src/components/ui';
 export interface AccessDeniedProps {
   /** Record title, e.g. the client's name. */
   title: string;
-  ownerName: string;
+  ownerName?: string;
+  description?: string;
+  requestTo?: string;
   backHref: string;
   backLabel: string;
 }
 
 /** A manager opened someone else's record (AGENTS.md → Roles and access). */
-export function AccessDenied({ title, ownerName, backHref, backLabel }: AccessDeniedProps) {
+export function AccessDenied({
+  title,
+  ownerName,
+  description = 'Managers only see their own clients. Ask the owner or the head of department for access.',
+  requestTo = ownerName,
+  backHref,
+  backLabel,
+}: AccessDeniedProps) {
   const toast = useToast();
   const router = useRouter();
   return (
@@ -22,20 +31,22 @@ export function AccessDenied({ title, ownerName, backHref, backLabel }: AccessDe
         <Lock size={22} strokeWidth={1.75} />
       </span>
       <div className="text-heading font-semibold">{title}</div>
-      <div className="text-text-tertiary">
-        Owned by: <b className="font-medium text-text">{ownerName}</b>
-      </div>
-      <div className="text-pretty text-sm text-text-muted">
-        Managers only see their own clients. Ask the owner or the head of department for access.
-      </div>
+      {ownerName && (
+        <div className="text-text-tertiary">
+          Owned by: <b className="font-medium text-text">{ownerName}</b>
+        </div>
+      )}
+      <div className="text-pretty text-sm text-text-muted">{description}</div>
       <div className="mt-1.5 flex gap-2">
         <Button onClick={() => router.push(backHref)}>{backLabel}</Button>
-        <Button
-          variant="primary"
-          onClick={() => toast.show({ message: `Access request sent to ${ownerName}` })}
-        >
-          Request access
-        </Button>
+        {requestTo && (
+          <Button
+            variant="primary"
+            onClick={() => toast.show({ message: `Access request sent to ${requestTo}` })}
+          >
+            Request access
+          </Button>
+        )}
       </div>
     </div>
   );

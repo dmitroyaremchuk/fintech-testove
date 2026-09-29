@@ -1,5 +1,12 @@
-import { ScreenPlaceholder } from '@/src/components/shell/ScreenPlaceholder';
+'use client';
+
+import { Suspense } from 'react';
+import { TasksScreen } from '@/src/components/tasks/TasksScreen';
 
 export default function TasksPage() {
-  return <ScreenPlaceholder screen="tasks" title="Tasks" phase="Phase 5" />;
+  return (
+    <Suspense>
+      <TasksScreen />
+    </Suspense>
+  );
 }

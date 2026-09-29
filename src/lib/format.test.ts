@@ -5,6 +5,7 @@ import {
   formatDateInContext,
   formatDayHeader,
   formatDue,
+  formatDueShort,
   formatLongDate,
   formatMoney,
   formatMoneyCompact,
@@ -123,5 +124,16 @@ describe('formatDateInContext', () => {
   it('adds the year only for other years', () => {
     expect(formatDateInContext(new Date(2026, 8, 11), NOW)).toBe('Sep 11');
     expect(formatDateInContext(new Date(2025, 8, 22), NOW)).toBe('Sep 22, 2025');
+  });
+});
+
+describe('formatDueShort', () => {
+  it('short labels inside task groups', () => {
+    expect(formatDueShort(new Date(2026, 8, 27, 10), NOW)).toBe('2 days ago');
+    expect(formatDueShort(new Date(2026, 8, 29, 11), NOW)).toBe('11:00');
+    expect(formatDueShort(new Date(2026, 8, 29, 18), NOW)).toBe('by 18:00');
+    expect(formatDueShort(new Date(2026, 8, 30, 15), NOW)).toBe('15:00');
+    expect(formatDueShort(new Date(2026, 9, 1, 11), NOW)).toBe('Thu, Oct 1 · 11:00');
+    expect(formatDueShort(new Date(2026, 9, 14, 10), NOW)).toBe('Oct 14');
   });
 });

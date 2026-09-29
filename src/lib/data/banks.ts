@@ -15,6 +15,10 @@ export interface BankStat {
   approvalRate: number | null;
   /** Average days from submission to decision; null without decisions. */
   avgDecisionDays: number | null;
+  /** Average annual rate of approved offers; null without approvals. */
+  avgRate: number | null;
+  /** Applications that ended in a payout. */
+  disbursed: number;
 }
 
 export function bankStats(data: Pick<Dataset, 'applications'>): Map<Bank, BankStat> {
@@ -22,7 +26,9 @@ export function bankStats(data: Pick<Dataset, 'applications'>): Map<Bank, BankSt
     BANKS.map((bank) => {
       const apps = data.applications.filter((a) => a.bank === bank);
       const decided = apps.filter((a) => a.decidedAt && a.submittedAt);
-      const approved = decided.filter((a) => POSITIVE.has(a.status)).length;
+      const approvedApps = decided.filter((a) => POSITIVE.has(a.status));
+      const approved = approvedApps.length;
+      const rates = approvedApps.map((a) => a.rate).filter((r): r is number => r !== null);
       const days = decided.map(
         (a) => (new Date(a.decidedAt!).getTime() - new Date(a.submittedAt!).getTime()) / DAY_MS,
       );
@@ -34,6 +40,8 @@ export function bankStats(data: Pick<Dataset, 'applications'>): Map<Bank, BankSt
           decided: decided.length,
           approvalRate: decided.length ? approved / decided.length : null,
           avgDecisionDays: days.length ? days.reduce((s, d) => s + d, 0) / days.length : null,
+          avgRate: rates.length ? rates.reduce((s, r) => s + r, 0) / rates.length : null,
+          disbursed: apps.filter((a) => a.status === 'disbursed').length,
         },
       ];
     }),

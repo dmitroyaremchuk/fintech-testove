@@ -4,6 +4,7 @@
 
 import {
   CLOSED_STAGES,
+  OVERLOAD_OVERDUE_TASKS,
   STAGES,
   type Bank,
   type OpenStageKey,
@@ -16,6 +17,7 @@ import { DECIDED, POSITIVE } from '../../rules/applications';
 import { documentChecklist } from '../../rules/documents';
 import { autoTasksFor, withoutDuplicates } from '../../rules/autoTasks';
 import { getStage, isStuck, stageOrder } from '../../rules/stages';
+import { isOverdue } from '../../rules/tasks';
 import type {
   BankApplication,
   Client,
@@ -85,6 +87,7 @@ export function createSeed(now: Date): Dataset {
   addOlenaTasks(ctx);
   addHeadTasks(ctx);
 
+  capOverdue(ctx);
   const tasks: Task[] = withoutDuplicates(ctx.tasks, []).map((t, i) => ({ ...t, id: `t${i + 1}` }));
   const interactions = ctx.interactions
     .filter((i) => new Date(i.date) >= addDays(now, -HISTORY_DAYS) && new Date(i.date) <= now)
@@ -104,6 +107,25 @@ export function createSeed(now: Date): Dataset {
     interactions,
     tasks,
   };
+}
+
+/**
+ * Story 5 says Olena is THE overloaded manager. Generated tasks could push another manager over
+ * the overload threshold by chance, so everyone else keeps at most MAX_OTHER_OVERDUE overdue tasks
+ * (the oldest extras count as done).
+ */
+const MAX_OTHER_OVERDUE = OVERLOAD_OVERDUE_TASKS - 2;
+function capOverdue(ctx: Ctx) {
+  const byUser = new Map<string, NewTask[]>();
+  for (const t of ctx.tasks) {
+    if (t.assigneeId === 'u1' || t.assigneeId === HEAD_ID || !isOverdue(t, ctx.now)) continue;
+    byUser.set(t.assigneeId, [...(byUser.get(t.assigneeId) ?? []), t]);
+  }
+  for (const list of byUser.values()) {
+    const oldestFirst = [...list].sort((a, b) => (a.dueAt ?? '').localeCompare(b.dueAt ?? ''));
+    for (const t of oldestFirst.slice(0, Math.max(0, list.length - MAX_OTHER_OVERDUE)))
+      t.status = 'done';
+  }
 }
 
 // ── Dates ──────────────────────────────────────────────────
@@ -203,6 +225,7 @@ function buildDeal(ctx: Ctx, spec: DealSpec) {
     stageEnteredAt: iso(current),
     commissionRate: null,
     lostReason: spec.lostReason ?? null,
+    lostAtStage: spec.stage === 'lost' ? (spec.closedFrom ?? null) : null,
   };
   ctx.deals.push(deal);
 

@@ -32,6 +32,11 @@ export interface DataState {
   load: () => Promise<void>;
   /** Replace the dataset and persist it. Rules produce the next dataset; the store just saves it. */
   commit: (next: Dataset) => void;
+  /**
+   * Apply a change to the LATEST dataset. Use when a change may land after others (delayed
+   * commits, e.g. after an animation) and for precise inverse Undo that keeps later edits.
+   */
+  update: (change: (current: Dataset) => Dataset) => void;
   /** "Reset demo data" in the profile menu. Returns the previous dataset for Undo. */
   reset: () => Dataset | null;
   setSession: (session: Session) => void;
@@ -94,6 +99,14 @@ export function createDataStore(repo: Repository, storage: KeyValueStorage): Sto
     },
 
     commit(next) {
+      repo.save(next);
+      set({ data: next });
+    },
+
+    update(change) {
+      const current = get().data;
+      if (!current) return;
+      const next = change(current);
       repo.save(next);
       set({ data: next });
     },

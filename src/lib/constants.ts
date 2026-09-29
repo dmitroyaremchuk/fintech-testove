@@ -231,6 +231,8 @@ export type Bank = (typeof BANKS)[number];
 // ── Thresholds used by the design ────────────────────────────
 /** Client is "No contact 14+ days" at or above this many days since last interaction. */
 export const STALE_CONTACT_DAYS = 14;
+/** "Nothing left for today" nudges clients silent for at least this many days. */
+export const NUDGE_MIN_DAYS = 7;
 
 /** Where clients come from (seed data and the New client form). */
 export const LEAD_SOURCES = [

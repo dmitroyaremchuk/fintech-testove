@@ -3,8 +3,15 @@
 import { useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Inbox, Timer } from 'lucide-react';
-import { Button, EmptyState, SegmentedControl, Select, useToast } from '@/src/components/ui';
-import { PRODUCTS, type LossReason, type Product, type StageKey } from '@/src/lib/constants';
+import { Button, Chip, EmptyState, SegmentedControl, Select, useToast } from '@/src/components/ui';
+import {
+  PRODUCTS,
+  STAGES,
+  type LossReason,
+  type OpenStageKey,
+  type Product,
+  type StageKey,
+} from '@/src/lib/constants';
 import { useDataStore, useScopedData, type Dataset, type Session } from '@/src/lib/data';
 import { moveDeal } from '@/src/lib/data/mutations';
 import {
@@ -54,11 +61,15 @@ function PipelineView({
   const now = useNow();
   const isHead = session.role === 'head';
 
-  const [view, setView] = useState<'kanban' | 'table'>('kanban');
+  const [view, setView] = useState<'kanban' | 'table'>(
+    params.get('view') === 'table' ? 'table' : 'kanban',
+  );
   const [filters, setFilters] = useState<PipelineFilters>(() => ({
     ...NO_FILTERS,
     onlyStuck: params.get('filter') === 'over-sla',
     ownerId: params.get('owner'),
+    stage:
+      (STAGES.find((s) => s.key === params.get('stage'))?.key as OpenStageKey | undefined) ?? null,
   }));
   const [lostFor, setLostFor] = useState<{ deal: Deal; reason?: LossReason } | null>(null);
 
@@ -187,6 +198,11 @@ function PipelineView({
             <Timer size={15} strokeWidth={1.75} />
             Over SLA only
           </button>
+          {filters.stage && (
+            <Chip size="lg" onRemove={() => set({ stage: null })} removeLabel="Show all stages">
+              Stage: {getStage(filters.stage).label}
+            </Chip>
+          )}
           {isFiltered(effective) && (
             <Button variant="link-muted" onClick={() => setFilters(NO_FILTERS)}>
               Reset

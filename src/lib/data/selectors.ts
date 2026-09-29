@@ -27,7 +27,7 @@ export function dueTodayTasks(data: Pick<Dataset, 'tasks'>, now: Date): Task[] {
   return data.tasks.filter((t) => t.status === 'open' && taskGroup(t, now) === 'today');
 }
 
-/** Bell badge: overdue + due today. */
+/** Bell badge: overdue + due today (same numbers as the Tasks banner, see tasks.ts). */
 export function reminderCount(data: Pick<Dataset, 'tasks'>, now: Date): number {
   return overdueTasks(data, now).length + dueTodayTasks(data, now).length;
 }

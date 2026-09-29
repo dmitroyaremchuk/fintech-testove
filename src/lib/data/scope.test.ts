@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { canReassign, canViewClient, scopeDataset, type Session } from './scope';
+import { canReassign, canViewClient, canViewTeam, scopeDataset, type Session } from './scope';
 import { createSeed } from './seed/build';
 
 const data = createSeed(new Date(2026, 8, 29, 10, 14));
@@ -67,5 +67,7 @@ describe('permissions', () => {
   it('only the head can reassign', () => {
     expect(canReassign(head)).toBe(true);
     expect(canReassign(olena)).toBe(false);
+    expect(canViewTeam(head)).toBe(true);
+    expect(canViewTeam(olena)).toBe(false);
   });
 });

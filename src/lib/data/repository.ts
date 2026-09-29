@@ -17,7 +17,7 @@ export function parseScreenState(search: string | null | undefined): ScreenState
 
 export const STORAGE_KEY = 'fundpath:data';
 /** Bump when the Dataset shape changes; older saved data is replaced by a fresh seed. */
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 interface Persisted {
   version: number;

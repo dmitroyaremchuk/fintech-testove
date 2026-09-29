@@ -22,6 +22,10 @@ export function canViewTask(session: Session, task: Pick<Task, 'assigneeId'>): b
   return session.role === 'head' || task.assigneeId === session.userId;
 }
 
+export function canViewTeam(session: Session): boolean {
+  return session.role === 'head';
+}
+
 /** Only the head reassigns owners and tasks. */
 export function canReassign(session: Session): boolean {
   return session.role === 'head';

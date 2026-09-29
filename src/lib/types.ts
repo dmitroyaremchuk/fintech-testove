@@ -11,6 +11,7 @@ import type {
   InteractionType,
   LegalForm,
   LossReason,
+  OpenStageKey,
   Product,
   StageKey,
   TaskPriority,
@@ -71,6 +72,8 @@ export interface Deal {
   commissionRate: number | null;
   /** Required when stage is "lost". */
   lostReason: LossReason | null;
+  /** The open stage a Lost deal was in when it was lost (for funnel conversion). */
+  lostAtStage: OpenStageKey | null;
 }
 
 export interface BankApplication {

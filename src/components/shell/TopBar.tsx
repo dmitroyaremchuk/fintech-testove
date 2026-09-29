@@ -13,7 +13,8 @@ import {
   Select,
   Skeleton,
 } from '@/src/components/ui';
-import { findUser, reminderCount, useDataStore, useScopedData } from '@/src/lib/data';
+import { findUser, useDataStore, useScopedData } from '@/src/lib/data';
+import { reminderSummaryFor, reminderText } from '@/src/lib/data/tasks';
 import { useNow } from '@/src/lib/hooks/useNow';
 import { cn } from '@/src/lib/cn';
 import type { Role } from '@/src/lib/types';
@@ -166,9 +167,11 @@ function NotificationBell() {
   const data = useScopedData();
   const session = useDataStore((s) => s.session);
   const now = useNow();
-  const count = data ? reminderCount(data, now) : 0;
+  // Same numbers and wording as the reminder banner on the Tasks screen, for the signed-in user.
+  const summary = data ? reminderSummaryFor(data, session.userId, now) : null;
+  const count = summary ? summary.today + summary.overdue : 0;
   const who = data ? findUser(data, session.userId)?.name : undefined;
-  const label = count > 0 ? `Reminders: ${count} overdue or due today` : 'Reminders';
+  const label = summary ? `Reminders: ${reminderText(summary)}` : 'Reminders';
   return (
     <Link
       href="/tasks"

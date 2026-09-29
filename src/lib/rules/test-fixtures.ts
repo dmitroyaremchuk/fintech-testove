@@ -23,6 +23,7 @@ export function makeDeal(overrides: Partial<Deal> = {}): Deal {
     stageEnteredAt: local(2026, 9, 25),
     commissionRate: null,
     lostReason: null,
+    lostAtStage: null,
     ...overrides,
   };
 }

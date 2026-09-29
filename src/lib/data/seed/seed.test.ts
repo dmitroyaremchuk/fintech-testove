@@ -286,6 +286,14 @@ describe.each(MOMENTS)('seed generated on %s', (_label, now) => {
       expect(mine.tasks.filter((t) => isOverdue(t, now))).toHaveLength(9);
     });
 
+    it('   …and nobody else is overloaded (≥ 5 overdue or ≥ 15 open deals)', () => {
+      for (const u of data.users.filter((x) => x.role === 'manager' && x.id !== 'u1')) {
+        const overdue = data.tasks.filter((t) => t.assigneeId === u.id && isOverdue(t, now)).length;
+        expect(overdue).toBeLessThan(5);
+        expect(open.filter((d) => d.ownerId === u.id).length).toBeLessThan(15);
+      }
+    });
+
     it('   …and she is the most loaded manager', () => {
       const openCount = (id: string) => open.filter((d) => d.ownerId === id).length;
       const others = data.users.filter((u) => u.role === 'manager' && u.id !== 'u1');

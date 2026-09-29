@@ -1,12 +1,13 @@
 // Pure dataset updates. Each returns a new Dataset; the store commits it, and the previous
 // Dataset is what Undo restores.
 
-import type { LegalForm, LossReason, Product, StageKey } from '../constants';
+import type { LegalForm, LossReason, OpenStageKey, Product, StageKey } from '../constants';
 import { formatMoney } from '../format';
 import { autoTasksFor, withoutDuplicates } from '../rules/autoTasks';
 import { documentChecklist } from '../rules/documents';
 import { normalizeCode } from '../rules/duplicates';
-import { getStage } from '../rules/stages';
+import { getStage, isClosedStage } from '../rules/stages';
+import { reassignGroup } from '../rules/reassign';
 import { canMoveToStage, type MoveCheck } from '../rules/transitions';
 import type { Client, Contact, Deal, Id, Interaction, NewTask, Task } from '../types';
 import type { Dataset } from './dataset';
@@ -124,6 +125,7 @@ export function createDeal(data: Dataset, clientId: Id, lead: NewLeadInput, now:
     stageEnteredAt: now.toISOString(),
     commissionRate: null,
     lostReason: null,
+    lostAtStage: null,
   };
   const newTasks = withoutDuplicates(autoTasksFor({ type: 'lead_created', deal }, now), data.tasks);
   const taskIds = data.tasks.map((t) => t.id);
@@ -349,6 +351,8 @@ export function moveDeal(
     stage: target,
     stageEnteredAt: now.toISOString(),
     lostReason: target === 'lost' ? lostReason : null,
+    lostAtStage:
+      target === 'lost' && !isClosedStage(deal.stage) ? (deal.stage as OpenStageKey) : null,
   };
 
   let candidates: NewTask[] = [];
@@ -413,5 +417,78 @@ export function moveDeal(
       tasks: [...tasks, ...data.tasks],
       interactions: [note, ...data.interactions],
     },
+  };
+}
+
+/** Moves a task to a new due date (snooze). */
+export function snoozeTask(data: Dataset, taskId: Id, dueAt: Date): Dataset {
+  return {
+    ...data,
+    tasks: data.tasks.map((t) => (t.id === taskId ? { ...t, dueAt: dueAt.toISOString() } : t)),
+  };
+}
+
+/** Head only (checked by the caller via canReassign): gives a task to another user. */
+export function reassignTask(data: Dataset, taskId: Id, assigneeId: Id): Dataset {
+  if (!data.users.some((u) => u.id === assigneeId))
+    throw new Error(`reassignTask: unknown user ${assigneeId}`);
+  return { ...data, tasks: data.tasks.map((t) => (t.id === taskId ? { ...t, assigneeId } : t)) };
+}
+
+export interface ReassignResult {
+  data: Dataset;
+  moved: { deals: number; clients: number; tasks: number };
+}
+
+export function reassignDeals(
+  data: Dataset,
+  dealIds: readonly Id[],
+  toId: Id,
+  now: Date,
+  reason = '',
+): ReassignResult {
+  if (!data.users.some((u) => u.id === toId && u.role === 'manager'))
+    throw new Error(`reassignDeals: unknown manager ${toId}`);
+  const name = (id: Id) => data.users.find((u) => u.id === id)?.name ?? id;
+  const moving = new Set(reassignGroup(data.deals, dealIds));
+  const deals = data.deals.filter((d) => moving.has(d.id) && d.ownerId !== toId);
+  const previousOwner = new Map(
+    data.clients
+      .filter((c) => deals.some((d) => d.clientId === c.id))
+      .map((c) => [c.id, c.ownerId]),
+  );
+  const moved = new Set(deals.map((d) => d.id));
+
+  let tasks = 0;
+  const reassignedTasks = data.tasks.map((t) => {
+    const from = t.clientId ? previousOwner.get(t.clientId) : undefined;
+    if (!from || t.status !== 'open' || t.assigneeId !== from) return t;
+    tasks += 1;
+    return { ...t, assigneeId: toId };
+  });
+
+  const ids = data.interactions.map((i) => i.id);
+  const suffix = reason.trim() ? ` · ${reason.trim()}` : '';
+  const notes = deals.map((d) => {
+    const id = nextId('i', ids);
+    ids.push(id);
+    return autoNote(
+      d.clientId,
+      d.id,
+      now,
+      `Deal reassigned: ${name(d.ownerId)} → ${name(toId)}${suffix}`,
+      id,
+    );
+  });
+
+  return {
+    data: {
+      ...data,
+      clients: data.clients.map((c) => (previousOwner.has(c.id) ? { ...c, ownerId: toId } : c)),
+      deals: data.deals.map((d) => (moved.has(d.id) ? { ...d, ownerId: toId } : d)),
+      tasks: reassignedTasks,
+      interactions: [...notes.reverse(), ...data.interactions],
+    },
+    moved: { deals: deals.length, clients: previousOwner.size, tasks },
   };
 }

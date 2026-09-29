@@ -1,5 +1,5 @@
-import { ScreenPlaceholder } from '@/src/components/shell/ScreenPlaceholder';
+import { DashboardScreen } from '@/src/components/dashboard/DashboardScreen';
 
 export default function DashboardPage() {
-  return <ScreenPlaceholder screen="dashboard" title="Dashboard" phase="Phase 6" />;
+  return <DashboardScreen />;
 }

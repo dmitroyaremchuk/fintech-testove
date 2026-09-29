@@ -116,3 +116,18 @@ export function formatDateInContext(date: Date, now: Date): string {
     ? formatDate(date)
     : `${formatDate(date)}, ${date.getFullYear()}`;
 }
+
+/**
+ * Due date inside a task group (the group already says "Today", "Tomorrow"…):
+ * overdue → "yesterday" / "3 days ago"; today & tomorrow → "11:00" ("by 18:00" for end of day);
+ * this week → "Thu, Oct 1 · 11:00"; later → "Oct 14".
+ */
+export function formatDueShort(due: Date, now: Date): string {
+  const diff = calendarDaysBetween(now, due);
+  if (diff < 0) return formatRelativeDay(due, now);
+  const time = formatTime(due);
+  const clock = time === '18:00' ? 'by 18:00' : time;
+  if (diff <= 1) return clock;
+  if (diff < 7) return formatWeekdayDateTime(due);
+  return formatDate(due);
+}
