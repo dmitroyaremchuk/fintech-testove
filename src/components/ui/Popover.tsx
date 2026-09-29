@@ -1,6 +1,15 @@
 'use client';
 
-import { useEffect, useRef, type KeyboardEvent, type ReactNode, type ComponentType } from 'react';
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ComponentType,
+  type KeyboardEvent,
+  type ReactNode,
+} from 'react';
+import { createPortal } from 'react-dom';
 import { cn } from '@/src/lib/cn';
 
 export interface PopoverProps {
@@ -15,7 +24,15 @@ export interface PopoverProps {
   className?: string;
   /** Classes for the wrapper around anchor + panel (e.g. `w-full`). */
   wrapperClassName?: string;
+  /**
+   * Render the panel over the page (fixed position) instead of inside the anchor's box —
+   * for anchors in scrolling or `overflow: hidden` containers such as kanban columns.
+   * Closes when the page scrolls.
+   */
+  portal?: boolean;
 }
+
+const GAP_PX = 4;
 
 /**
  * Floating panel for menus and search results. Closes on Esc and on clicks outside the anchor
@@ -30,9 +47,12 @@ export function Popover({
   side = 'bottom',
   className,
   wrapperClassName,
+  portal = false,
 }: PopoverProps) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
+  const [fixed, setFixed] = useState<{ top: number; left?: number; right?: number } | null>(null);
 
   useEffect(() => {
     onCloseRef.current = onClose;
@@ -41,35 +61,75 @@ export function Popover({
   useEffect(() => {
     if (!open) return;
     const onPointer = (e: MouseEvent) => {
-      if (rootRef.current && !rootRef.current.contains(e.target as Node)) onCloseRef.current();
+      const target = e.target as Node;
+      if (rootRef.current?.contains(target) || panelRef.current?.contains(target)) return;
+      onCloseRef.current();
+    };
+    const onScroll = (e: Event) => {
+      if (panelRef.current?.contains(e.target as Node)) return;
+      onCloseRef.current();
     };
     const onKey = (e: globalThis.KeyboardEvent) => {
       if (e.key === 'Escape') onCloseRef.current();
     };
     document.addEventListener('mousedown', onPointer);
     document.addEventListener('keydown', onKey);
+    if (portal) {
+      window.addEventListener('scroll', onScroll, true);
+      window.addEventListener('resize', onScroll);
+    }
     return () => {
       document.removeEventListener('mousedown', onPointer);
       document.removeEventListener('keydown', onKey);
+      window.removeEventListener('scroll', onScroll, true);
+      window.removeEventListener('resize', onScroll);
     };
-  }, [open]);
+  }, [open, portal]);
+
+  useLayoutEffect(() => {
+    if (!open || !portal || !rootRef.current) return;
+    const r = rootRef.current.getBoundingClientRect();
+    const panelHeight = panelRef.current?.offsetHeight ?? 0;
+    const top = side === 'bottom' ? r.bottom + GAP_PX : r.top - GAP_PX - panelHeight;
+    setFixed(
+      align === 'left' ? { top, left: r.left } : { top, right: window.innerWidth - r.right },
+    );
+  }, [open, portal, align, side]);
+
+  const panelClass = cn(
+    'z-30 rounded-card border border-border-strong bg-surface p-1 shadow-menu',
+    'animate-[fp-fade-in_100ms_ease-out]',
+    className,
+  );
 
   return (
     <div ref={rootRef} className={cn('relative', wrapperClassName)}>
       {anchor}
-      {open && (
+      {open && !portal && (
         <div
+          ref={panelRef}
           className={cn(
-            'absolute z-30 rounded-card border border-border-strong bg-surface p-1 shadow-menu',
-            'animate-[fp-fade-in_100ms_ease-out]',
+            'absolute',
             align === 'left' ? 'left-0' : 'right-0',
             side === 'bottom' ? 'top-full mt-1' : 'bottom-full mb-1',
-            className,
+            panelClass,
           )}
         >
           {children}
         </div>
       )}
+      {open &&
+        portal &&
+        createPortal(
+          <div
+            ref={panelRef}
+            className={cn('fixed', panelClass, !fixed && 'invisible')}
+            style={fixed ?? { top: 0, left: 0 }}
+          >
+            {children}
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

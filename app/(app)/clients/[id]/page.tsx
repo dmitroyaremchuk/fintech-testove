@@ -3,17 +3,18 @@
 import { useParams } from 'next/navigation';
 import { SearchX } from 'lucide-react';
 import { EmptyState } from '@/src/components/ui';
+import { ClientCard } from '@/src/components/client/ClientCard';
 import { AccessDenied } from '@/src/components/shell/AccessDenied';
-import { ScreenPlaceholder } from '@/src/components/shell/ScreenPlaceholder';
-import { canViewClient, findUser, useDataStore } from '@/src/lib/data';
+import { canViewClient, findUser, useDataStore, useScopedData } from '@/src/lib/data';
 
 export default function ClientPage() {
   const { id } = useParams<{ id: string }>();
   const data = useDataStore((s) => s.data);
+  const scoped = useScopedData();
   const session = useDataStore((s) => s.session);
   const client = data?.clients.find((c) => c.id === id);
 
-  if (!data) return null;
+  if (!data || !scoped) return null;
   if (!client) {
     return (
       <EmptyState
@@ -33,5 +34,5 @@ export default function ClientPage() {
       />
     );
   }
-  return <ScreenPlaceholder screen="client" title={client.name} phase="Phase 3" />;
+  return <ClientCard client={client} data={data} scoped={scoped} session={session} />;
 }

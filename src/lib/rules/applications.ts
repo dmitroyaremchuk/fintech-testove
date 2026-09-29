@@ -63,3 +63,50 @@ export function summarizeApplications(
     allRejected: sent > 0 && rejected === sent,
   };
 }
+
+// ── Status changes ───────────────────────────────────────────
+
+/**
+ * Allowed status changes. A bank decides once (approved / rejected are final for the bank);
+ * the client can change their mind between approved offers (accepted → approved).
+ */
+export const APPLICATION_TRANSITIONS: Record<ApplicationStatus, readonly ApplicationStatus[]> = {
+  prep: ['submitted'],
+  submitted: ['review', 'extra', 'approved', 'rejected'],
+  review: ['extra', 'approved', 'rejected'],
+  extra: ['review', 'approved', 'rejected'],
+  approved: ['accepted'],
+  accepted: ['disbursed', 'approved'],
+  rejected: [],
+  disbursed: [],
+};
+
+export function canChangeStatus(from: ApplicationStatus, to: ApplicationStatus): boolean {
+  return APPLICATION_TRANSITIONS[from].includes(to);
+}
+
+export interface ApprovalTerms {
+  amount: number;
+  /** Annual rate, percent. */
+  rate: number;
+  termMonths: number;
+}
+
+const MIN_RATE = 1;
+const MAX_RATE = 60;
+const MAX_TERM_MONTHS = 120;
+
+/** Checks the terms a bank approved. null = valid. */
+export function validateApproval(terms: ApprovalTerms): string | null {
+  if (!(terms.amount > 0)) return 'Enter the approved amount';
+  if (!(terms.rate >= MIN_RATE && terms.rate <= MAX_RATE))
+    return `Rate must be between ${MIN_RATE}% and ${MAX_RATE}%`;
+  if (
+    !Number.isInteger(terms.termMonths) ||
+    terms.termMonths < 1 ||
+    terms.termMonths > MAX_TERM_MONTHS
+  ) {
+    return `Term must be 1–${MAX_TERM_MONTHS} months`;
+  }
+  return null;
+}

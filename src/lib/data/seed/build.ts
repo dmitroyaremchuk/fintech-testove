@@ -13,6 +13,7 @@ import {
 import { addDays, addHours, atTime } from '../../dates';
 import { formatDate, formatMoney, formatMoneyCompact } from '../../format';
 import { DECIDED, POSITIVE } from '../../rules/applications';
+import { documentChecklist } from '../../rules/documents';
 import { autoTasksFor, withoutDuplicates } from '../../rules/autoTasks';
 import { getStage, isStuck, stageOrder } from '../../rules/stages';
 import type {
@@ -55,13 +56,6 @@ const REJECTIONS = [
   'Unconfirmed income in bank statements',
   'Industry outside the bank’s risk appetite',
 ];
-
-const EXTRA_DOCS: Record<Product, string[]> = {
-  Loan: ['Collateral documents'],
-  Leasing: ['Leased asset specification and invoice'],
-  Overdraft: [],
-  Factoring: ['Supply contracts with debtors'],
-};
 
 interface Ctx {
   now: Date;
@@ -117,6 +111,12 @@ export function createSeed(now: Date): Dataset {
 /** Never later than now (items "today at 16:00" seeded at 10:00 move to just before now). */
 function notFuture(ctx: Ctx, date: Date): Date {
   return date > ctx.now ? new Date(ctx.now.getTime() - 20 * 60 * 1000) : date;
+}
+
+/** Moves a manual entry into office hours (09–18) on the same day, keeping it after `after` and not in the future. */
+function workingHours(ctx: Ctx, date: Date, after: Date): Date {
+  const moved = atTime(date, ctx.rng.int(9, 17), ctx.rng.int(0, 59));
+  return notFuture(ctx, moved > after ? moved : date);
 }
 
 function daysAgo(ctx: Ctx, days: number, hours: number, minutes = 0): Date {
@@ -263,31 +263,10 @@ function buildApplications(
 
 // ── Documents ──────────────────────────────────────────────
 
-function checklist(client: Client, product: Product, year: number): string[] {
-  const base =
-    client.legalForm === 'LLC'
-      ? [
-          'State register extract',
-          `Financial statements F1, F2 for ${year - 1}`,
-          `Financial statements H1 ${year}`,
-          'Tax clearance certificate',
-          'Bank statements, 12 mo.',
-          'Director’s passport and tax ID',
-        ]
-      : [
-          'Passport and tax ID',
-          'Single tax payer register extract',
-          `Sole prop. tax return ${year - 1}`,
-          'Tax clearance certificate',
-          'Sole prop. bank statement, 6 mo.',
-        ];
-  return [...base, ...EXTRA_DOCS[product]];
-}
-
 function buildDocuments(ctx: Ctx, deal: Deal, client: Client, path: StageKey[]): DocumentItem[] {
   if (!path.includes('docs')) return [];
   const { rng, now } = ctx;
-  const names = checklist(client, deal.product, now.getFullYear());
+  const names = documentChecklist(client.legalForm, deal.product, now.getFullYear());
   const open = deal.stage !== 'won' && deal.stage !== 'lost';
   const collecting = deal.stage === 'docs' || (deal.stage === 'lost' && path.at(-2) === 'docs');
   const receivedCount = collecting
@@ -403,7 +382,7 @@ function addDealInteractions(
       out.push(
         interaction(
           deal,
-          notFuture(ctx, between(ctx, addHours(at, 1), next)),
+          workingHours(ctx, between(ctx, addHours(at, 1), next), at),
           note[0],
           note[1],
           owner,

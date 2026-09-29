@@ -1,11 +1,14 @@
 // Pure dataset updates. Each returns a new Dataset; the store commits it, and the previous
 // Dataset is what Undo restores.
 
-import type { LegalForm, Product } from '../constants';
+import type { LegalForm, LossReason, Product, StageKey } from '../constants';
 import { formatMoney } from '../format';
 import { autoTasksFor, withoutDuplicates } from '../rules/autoTasks';
+import { documentChecklist } from '../rules/documents';
 import { normalizeCode } from '../rules/duplicates';
-import type { Client, Contact, Deal, Id, Interaction, Task } from '../types';
+import { getStage } from '../rules/stages';
+import { canMoveToStage, type MoveCheck } from '../rules/transitions';
+import type { Client, Contact, Deal, Id, Interaction, NewTask, Task } from '../types';
 import type { Dataset } from './dataset';
 
 /** Next id in a prefix sequence: c40 → c41. Deterministic, readable, collision-free. */
@@ -99,15 +102,19 @@ export function createClient(data: Dataset, input: NewClientInput, now: Date) {
   };
 }
 
-/** New lead = new client + a deal in "New lead" + the auto task "Call tomorrow 10:00". */
-export function createLead(data: Dataset, input: NewClientInput, lead: NewLeadInput, now: Date) {
-  const { client, data: withClient } = createClient(data, input, now);
+/**
+ * New deal for an existing client, starting at "New lead", plus the auto task
+ * "Call tomorrow 10:00" (AGENTS.md auto-task rules). The deal goes to the client's owner.
+ */
+export function createDeal(data: Dataset, clientId: Id, lead: NewLeadInput, now: Date) {
+  const client = data.clients.find((c) => c.id === clientId);
+  if (!client) throw new Error(`createDeal: unknown client ${clientId}`);
   const deal: Deal = {
     id: nextId(
       'd',
       data.deals.map((d) => d.id),
     ),
-    clientId: client.id,
+    clientId,
     product: lead.product,
     requestedAmount: lead.requestedAmount,
     purpose: lead.purpose.trim(),
@@ -118,37 +125,141 @@ export function createLead(data: Dataset, input: NewClientInput, lead: NewLeadIn
     commissionRate: null,
     lostReason: null,
   };
-  const newTasks = withoutDuplicates(
-    autoTasksFor({ type: 'lead_created', deal }, now),
-    withClient.tasks,
-  );
-  const taskIds = withClient.tasks.map((t) => t.id);
+  const newTasks = withoutDuplicates(autoTasksFor({ type: 'lead_created', deal }, now), data.tasks);
+  const taskIds = data.tasks.map((t) => t.id);
   const tasks: Task[] = newTasks.map((t) => {
     const id = nextId('t', taskIds);
     taskIds.push(id);
     return { ...t, id };
   });
   const note = autoNote(
-    client.id,
+    clientId,
     deal.id,
     now,
     `Lead created: ${deal.product} · ${formatMoney(deal.requestedAmount)}`,
     nextId(
       'i',
-      withClient.interactions.map((i) => i.id),
+      data.interactions.map((i) => i.id),
     ),
   );
   return {
-    client,
     deal,
     tasks,
     data: {
-      ...withClient,
-      deals: [...withClient.deals, deal],
-      tasks: [...tasks, ...withClient.tasks],
-      interactions: [note, ...withClient.interactions],
+      ...data,
+      deals: [...data.deals, deal],
+      tasks: [...tasks, ...data.tasks],
+      interactions: [note, ...data.interactions],
     },
   };
+}
+
+/** New lead = new client + a deal in "New lead" + the auto task "Call tomorrow 10:00". */
+export function createLead(data: Dataset, input: NewClientInput, lead: NewLeadInput, now: Date) {
+  const { client, data: withClient } = createClient(data, input, now);
+  return { client, ...createDeal(withClient, client.id, lead, now) };
+}
+
+export interface NewInteractionInput {
+  clientId: Id;
+  dealId: Id | null;
+  type: Interaction['type'];
+  summary: string;
+  /** null = system entry (auto). */
+  authorId: Id | null;
+}
+
+/** Adds an entry to the client's history; it shows at the top of the timeline immediately. */
+export function addInteraction(data: Dataset, input: NewInteractionInput, now: Date) {
+  const interaction: Interaction = {
+    id: nextId(
+      'i',
+      data.interactions.map((i) => i.id),
+    ),
+    ...input,
+    summary: input.summary.trim(),
+    date: now.toISOString(),
+    auto: input.authorId === null,
+  };
+  return { interaction, data: { ...data, interactions: [interaction, ...data.interactions] } };
+}
+
+export function updateClient(data: Dataset, clientId: Id, patch: Partial<Client>): Dataset {
+  return {
+    ...data,
+    clients: data.clients.map((c) => (c.id === clientId ? { ...c, ...patch, id: c.id } : c)),
+  };
+}
+
+export function setTaskStatus(data: Dataset, taskId: Id, status: Task['status']): Dataset {
+  return { ...data, tasks: data.tasks.map((t) => (t.id === taskId ? { ...t, status } : t)) };
+}
+
+export interface NewTaskInput {
+  title: string;
+  type: Task['type'];
+  clientId: Id | null;
+  dealId: Id | null;
+  assigneeId: Id;
+  dueAt: Date | null;
+  priority: Task['priority'];
+}
+
+export function addTask(data: Dataset, input: NewTaskInput) {
+  const task: Task = {
+    id: nextId(
+      't',
+      data.tasks.map((t) => t.id),
+    ),
+    ...input,
+    title: input.title.trim(),
+    dueAt: input.dueAt ? input.dueAt.toISOString() : null,
+    status: 'open',
+    source: 'manual',
+    autoKey: null,
+  };
+  return { task, data: { ...data, tasks: [task, ...data.tasks] } };
+}
+
+/**
+ * Head changes the client's owner. Open deals follow the client (deal owner = client owner),
+ * and open tasks the previous owner had on this client move too. Closed deals keep their
+ * owner, so past commission stays attributed to whoever earned it.
+ */
+export function reassignClient(data: Dataset, clientId: Id, ownerId: Id, now: Date) {
+  const client = data.clients.find((c) => c.id === clientId);
+  if (!client) throw new Error(`reassignClient: unknown client ${clientId}`);
+  const from = client.ownerId;
+  if (from === ownerId) return { data, moved: { deals: 0, tasks: 0 } };
+  const name = (id: Id) => data.users.find((u) => u.id === id)?.name ?? id;
+
+  let deals = 0;
+  let tasks = 0;
+  const next: Dataset = {
+    ...data,
+    clients: data.clients.map((c) => (c.id === clientId ? { ...c, ownerId } : c)),
+    deals: data.deals.map((d) => {
+      if (d.clientId !== clientId || d.stage === 'won' || d.stage === 'lost') return d;
+      deals += 1;
+      return { ...d, ownerId };
+    }),
+    tasks: data.tasks.map((t) => {
+      if (t.clientId !== clientId || t.status !== 'open' || t.assigneeId !== from) return t;
+      tasks += 1;
+      return { ...t, assigneeId: ownerId };
+    }),
+  };
+  const note = autoNote(
+    clientId,
+    null,
+    now,
+    `Owner changed: ${name(from)} → ${name(ownerId)}`,
+    nextId(
+      'i',
+      data.interactions.map((i) => i.id),
+    ),
+  );
+  return { data: { ...next, interactions: [note, ...next.interactions] }, moved: { deals, tasks } };
 }
 
 const phoneKey = (c: Contact) => c.phone.replace(/\D/g, '');
@@ -203,6 +314,104 @@ export function mergeClients(data: Dataset, keepId: Id, removeId: Id, now: Date)
         const reassign = t.assigneeId === remove.ownerId;
         return { ...t, clientId: keepId, assigneeId: reassign ? keep.ownerId : t.assigneeId };
       }),
+    },
+  };
+}
+
+export interface MoveResult {
+  check: MoveCheck;
+  data: Dataset;
+  /** Auto tasks created by entering the new stage (for the "N tasks created" toast). */
+  tasks: Task[];
+}
+
+/**
+ * Moves a deal to another stage through the stage rules (canMoveToStage). A blocked move returns
+ * the reason and the untouched dataset. An allowed move resets the stage timer, logs the change
+ * in the timeline and creates the auto tasks for the new stage:
+ * Document collection → one per missing document + client reminder; Won → commission invoice.
+ */
+export function moveDeal(
+  data: Dataset,
+  dealId: Id,
+  target: StageKey,
+  now: Date,
+  lostReason: LossReason | null = null,
+): MoveResult {
+  const deal = data.deals.find((d) => d.id === dealId);
+  if (!deal) throw new Error(`moveDeal: unknown deal ${dealId}`);
+  const applications = data.applications.filter((a) => a.dealId === dealId);
+  const check = canMoveToStage(deal, target, { applications, lostReason });
+  if (!check.allowed) return { check, data, tasks: [] };
+
+  const moved: Deal = {
+    ...deal,
+    stage: target,
+    stageEnteredAt: now.toISOString(),
+    lostReason: target === 'lost' ? lostReason : null,
+  };
+
+  let candidates: NewTask[] = [];
+  let documents = data.documents;
+  if (target === 'docs') {
+    let dealDocs = data.documents.filter((d) => d.dealId === dealId);
+    // First time in Document collection: generate the checklist for this legal form and product.
+    const client = data.clients.find((c) => c.id === deal.clientId);
+    if (dealDocs.length === 0 && client) {
+      dealDocs = documentChecklist(client.legalForm, deal.product, now.getFullYear()).map(
+        (type, n) => ({
+          id: `${dealId}-doc${n + 1}`,
+          dealId,
+          type,
+          status: 'not_requested' as const,
+          validUntil: null,
+        }),
+      );
+      documents = [...data.documents, ...dealDocs];
+    }
+    candidates = autoTasksFor({ type: 'stage_entered', deal: moved, documents: dealDocs }, now);
+  } else if (target === 'won') {
+    const paid = applications.find((a) => a.status === 'disbursed');
+    if (paid) candidates = autoTasksFor({ type: 'disbursed', deal: moved, application: paid }, now);
+  }
+  const taskIds = data.tasks.map((t) => t.id);
+  const tasks: Task[] = withoutDuplicates(candidates, data.tasks).map((t) => {
+    const id = nextId('t', taskIds);
+    taskIds.push(id);
+    return { ...t, id };
+  });
+
+  const from = getStage(deal.stage).label;
+  const to = getStage(target).label;
+  const summary =
+    target === 'won'
+      ? 'Deal marked as won · funds disbursed'
+      : target === 'lost'
+        ? `Deal marked as lost: ${lostReason ?? ''}`
+        : `Deal stage: “${from}” → “${to}”`;
+  const note: Interaction = {
+    ...autoNote(
+      deal.clientId,
+      dealId,
+      now,
+      summary,
+      nextId(
+        'i',
+        data.interactions.map((i) => i.id),
+      ),
+    ),
+    type: 'stage_change',
+  };
+
+  return {
+    check,
+    tasks,
+    data: {
+      ...data,
+      deals: data.deals.map((d) => (d.id === dealId ? moved : d)),
+      documents,
+      tasks: [...tasks, ...data.tasks],
+      interactions: [note, ...data.interactions],
     },
   };
 }

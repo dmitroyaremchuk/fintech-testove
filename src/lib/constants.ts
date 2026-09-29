@@ -265,3 +265,13 @@ export const DOCUMENT_EXPIRY_WARNING_DAYS = 5;
 // ── Demo data layer ──────────────────────────────────────────
 /** Fake network latency for every load, so loading states are visible. */
 export const SIMULATED_LATENCY_MS = 450;
+
+/** Quick picks when recording a bank rejection (free text is allowed too). */
+export const REJECTION_REASON_PRESETS = [
+  'Insufficient collateral',
+  'Debt load above bank limits',
+  'Unconfirmed income in bank statements',
+  'Industry outside the bank’s risk appetite',
+  'Negative credit history of the owner',
+  'Tax arrears found in the registry',
+] as const;

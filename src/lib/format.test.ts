@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import {
   formatDate,
   formatDateWeekday,
+  formatDateInContext,
   formatDayHeader,
+  formatDue,
   formatLongDate,
   formatMoney,
   formatMoneyCompact,
@@ -104,5 +106,22 @@ describe('relative days', () => {
   it('formatDayHeader → "Today" or "Sep 28, Mon"', () => {
     expect(formatDayHeader(new Date(2026, 8, 29, 9, 52), NOW)).toBe('Today');
     expect(formatDayHeader(new Date(2026, 8, 28, 16, 5), NOW)).toBe('Sep 28, Mon');
+  });
+});
+
+describe('formatDue', () => {
+  it('overdue, today, tomorrow, later', () => {
+    expect(formatDue(new Date(2026, 8, 28, 10), NOW)).toBe('yesterday');
+    expect(formatDue(new Date(2026, 8, 26, 10), NOW)).toBe('3 days ago');
+    expect(formatDue(new Date(2026, 8, 29, 11), NOW)).toBe('Today · 11:00');
+    expect(formatDue(new Date(2026, 8, 30, 10), NOW)).toBe('Tomorrow · 10:00');
+    expect(formatDue(new Date(2026, 9, 1, 11), NOW)).toBe('Thu, Oct 1 · 11:00');
+  });
+});
+
+describe('formatDateInContext', () => {
+  it('adds the year only for other years', () => {
+    expect(formatDateInContext(new Date(2026, 8, 11), NOW)).toBe('Sep 11');
+    expect(formatDateInContext(new Date(2025, 8, 22), NOW)).toBe('Sep 22, 2025');
   });
 });

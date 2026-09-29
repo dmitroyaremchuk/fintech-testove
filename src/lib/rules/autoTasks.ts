@@ -33,7 +33,9 @@ export type AutoTaskEvent =
       /** All applications of the deal, to find banks not tried yet. */
       applications: readonly Pick<BankApplication, 'bank'>[];
     }
-  | { type: 'disbursed'; deal: DealRef; application: AppRef };
+  | { type: 'disbursed'; deal: DealRef; application: AppRef }
+  /** A document was requested from the client: remind them in 3 days (one reminder per deal). */
+  | { type: 'document_requested'; deal: DealRef };
 
 function task(
   deal: DealRef,
@@ -183,6 +185,17 @@ export function autoTasksFor(event: AutoTaskEvent, now: Date): NewTask[] {
         }),
       ];
     }
+
+    case 'document_requested':
+      return [
+        task(deal, {
+          title: 'Remind client about documents',
+          type: 'call',
+          priority: 'med',
+          dueAt: atTime(addDays(now, DOCUMENT_REMINDER_DAYS), FIRST_CALL_HOUR),
+          autoKey: `doc-reminder:${deal.id}`,
+        }),
+      ];
 
     case 'disbursed':
       return [

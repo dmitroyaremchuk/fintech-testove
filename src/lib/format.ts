@@ -90,3 +90,29 @@ export function formatNumericDateTime(date: Date): string {
   const mm = String(date.getMonth() + 1).padStart(2, '0');
   return `${dd}.${mm} ${formatTime(date)}`;
 }
+
+/** Region as shown on the client card: "Kharkiv" → "Kharkiv Oblast", "Kyiv" → "Kyiv City". */
+export function formatRegion(region: string): string {
+  const r = region.trim();
+  if (!r || /\b(Oblast|City)$/.test(r)) return r;
+  return r === 'Kyiv' ? 'Kyiv City' : `${r} Oblast`;
+}
+
+/**
+ * Task due label: "yesterday", "3 days ago" when overdue; "Today · 11:00", "Tomorrow · 10:00";
+ * later dates as "Thu, Oct 1 · 11:00".
+ */
+export function formatDue(due: Date, now: Date): string {
+  const diff = calendarDaysBetween(now, due);
+  if (diff < 0) return formatRelativeDay(due, now);
+  if (diff === 0) return `Today · ${formatTime(due)}`;
+  if (diff === 1) return `Tomorrow · ${formatTime(due)}`;
+  return formatWeekdayDateTime(due);
+}
+
+/** "Sep 11" this year, "Sep 22, 2025" otherwise — for history lists that span years. */
+export function formatDateInContext(date: Date, now: Date): string {
+  return date.getFullYear() === now.getFullYear()
+    ? formatDate(date)
+    : `${formatDate(date)}, ${date.getFullYear()}`;
+}
